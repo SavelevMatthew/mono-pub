@@ -1,0 +1,11 @@
+{
+  "name": "@mono-pub/root",
+  "version": "0.0.0-development",
+  "description": "Simple tool for publishing your npm packages that live in a monorepo",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:SavelevMatthew/mono-pub.git"
+  },
+  "author": "SavelevMatthew <savelevmatthew@gmail.com>",
+  "license": "MIT"
+}
