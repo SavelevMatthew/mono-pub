@@ -1,0 +1,19 @@
+{
+  "name": "@mono-pub/git",
+  "version": "0.0.0-development",
+  "description": "@mono-pub plugin to work with git repos",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:SavelevMatthew/mono-pub.git",
+    "directory": "packages/git"
+  },
+  "author": {
+    "name": "Matthew Savelev",
+    "email": "savelevmatthew@gmail.com",
+    "url": "https://github.com/SavelevMatthew"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  }
+}

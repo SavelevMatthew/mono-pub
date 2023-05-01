@@ -9,15 +9,12 @@ module.exports = {
     rootDir: './',
     testPathIgnorePatterns: ['/node_modules/'],
     moduleFileExtensions: ['js', 'ts'],
-    transform: {
-        '^.+\\.ts?$': 'ts-jest',
-    },
     projects: packages.map((pkg) => ({
         displayName: pkg,
         testEnvironment: 'node',
         transform: {
-            '^.+\\.ts?$': 'ts-jest',
+            '^.+\\.ts?$': ['ts-jest', { tsconfig: `<rootDir>/packages/${pkg}/tsconfig.json` }],
         },
-        testMatch: [`<rootDir>/${pkg}/**/*.spec.ts`],
+        testMatch: [`<rootDir>/packages/${pkg}/**/*.spec.ts`],
     })),
 }

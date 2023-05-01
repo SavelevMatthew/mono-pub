@@ -783,6 +783,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mono-pub/git@workspace:packages/git":
+  version: 0.0.0-use.local
+  resolution: "@mono-pub/git@workspace:packages/git"
+  dependencies:
+    typescript: ^5.0.4
+  languageName: unknown
+  linkType: soft
+
 "@mono-pub/root@workspace:.":
   version: 0.0.0-use.local
   resolution: "@mono-pub/root@workspace:."
