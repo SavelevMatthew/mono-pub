@@ -1,4 +1,5 @@
-import { getTagRegex, type ParsedTag } from './tags'
+import { getTagRegex, _maxVersion, getLatestReleases } from './tags'
+import type { ParsedTag, LatestRelease } from '../types'
 
 describe('Tags utils', () => {
     describe('getTagRegex', () => {
@@ -16,7 +17,6 @@ describe('Tags utils', () => {
                 expect(() => getTagRegex(['pkg'], '{name}-{name}@{version}')).toThrow(TypeError)
             })
         })
-
         describe('Should generate valid regexps to find tags', () => {
             const tags = [
                 'some-package',
@@ -75,6 +75,41 @@ describe('Tags utils', () => {
                 expect(matchingTags).toHaveLength(expected.length)
                 expect(matchingTags).toEqual(expect.arrayContaining(expected))
             })
+        })
+    })
+    describe('_maxVersion', () => {
+        describe('Must detect max version correctly', () => {
+            const cases: Array<[string, LatestRelease, LatestRelease]> = [
+                ['null must be less than anything else', { major: 0, minor: 0, patch: 1 }, null],
+                ['patch difference', { major: 1, minor: 2, patch: 34 }, { major: 1, minor: 2, patch: 1 }],
+                ['minor difference', { major: 1, minor: 3, patch: 0 }, { major: 1, minor: 2, patch: 158 }],
+                ['major difference', { major: 1, minor: 2, patch: 158 }, { major: 0, minor: 3, patch: 0 }],
+            ]
+            it.each(cases)('%p', (_, max, min) => {
+                expect(_maxVersion(max, min)).toEqual(max)
+                expect(_maxVersion(min, max)).toEqual(max)
+            })
+        })
+    })
+    describe('getLatestReleases', () => {
+        it('Must correctly determine latest release with default tag format', () => {
+            const tags = [
+                'some-package@1.0.0',
+                'some-package@1.1.0',
+                'some-package@1.1.1',
+                'some-package@1.1.2',
+                'some-package@2.0.0',
+                '@scoped/package@35.26.78',
+                '@scoped/another@1.2.3',
+                '@scoped/another@5.2.0',
+                '@scoped/another@5.2.3',
+            ]
+            const packages = ['some-package', '@scoped/package', '@scoped/another', '@another-scope/pkg'] as const
+            const latestReleases = getLatestReleases(tags, packages)
+            expect(latestReleases).toHaveProperty('some-package', { major: 2, minor: 0, patch: 0 })
+            expect(latestReleases).toHaveProperty('@scoped/package', { major: 35, minor: 26, patch: 78 })
+            expect(latestReleases).toHaveProperty('@scoped/another', { major: 5, minor: 2, patch: 3 })
+            expect(latestReleases).toHaveProperty('@another-scope/pkg', null)
         })
     })
 })

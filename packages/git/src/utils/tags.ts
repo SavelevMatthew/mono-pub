@@ -1,18 +1,35 @@
+import type { LatestRelease, LatestReleasesMap, PackageVersion } from '../types'
+
 const VERSION_PLACEHOLDER = '{version}'
 const NAME_PLACEHOLDER = '{name}'
 const DEFAULT_TAG_FORMAT = `${NAME_PLACEHOLDER}@${VERSION_PLACEHOLDER}`
 const SPLIT_REGEXP = new RegExp(`(${_escapeRegex(VERSION_PLACEHOLDER)}|${_escapeRegex(NAME_PLACEHOLDER)})`)
 const VERSION_REPLACE = '(?<major>\\d+).(?<minor>\\d+).(?<patch>\\d+)'
 
-export type ParsedTag = {
-    package: string
-    major: number
-    minor: number
-    patch: number
-}
-
 function _escapeRegex(str: string) {
     return str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&').replace(/-/g, '\\x2d')
+}
+
+export function _maxVersion(lhs: LatestRelease, rhs: LatestRelease): LatestRelease {
+    if (lhs === null) {
+        return rhs
+    } else if (rhs === null) {
+        return lhs
+    }
+
+    if (lhs.major > rhs.major) {
+        return lhs
+    } else if (lhs.major < rhs.major) {
+        return rhs
+    }
+
+    if (lhs.minor > rhs.minor) {
+        return lhs
+    } else if (lhs.minor < rhs.minor) {
+        return rhs
+    }
+
+    return lhs.patch > rhs.patch ? lhs : rhs
 }
 
 /**
@@ -20,7 +37,7 @@ function _escapeRegex(str: string) {
  * @param packageNames array containing all packages names to catch.
  * @param tagFormat tag format, use {version} and {name} placeholders to generate your own. {name}@{version} by default
  */
-export function getTagRegex(packageNames: Array<string>, tagFormat = DEFAULT_TAG_FORMAT) {
+export function getTagRegex(packageNames: ReadonlyArray<string>, tagFormat = DEFAULT_TAG_FORMAT) {
     const versionIndex = tagFormat.indexOf(VERSION_PLACEHOLDER)
     if (versionIndex === -1) {
         throw new TypeError(`no "${VERSION_PLACEHOLDER}" found in tagFormat`)
@@ -48,4 +65,29 @@ export function getTagRegex(packageNames: Array<string>, tagFormat = DEFAULT_TAG
     })
 
     return new RegExp(`^${escapedParts.join('')}$`)
+}
+
+export function getLatestReleases<TPackages extends ReadonlyArray<string>>(
+    tags: ReadonlyArray<string>,
+    packageNames: TPackages,
+    tagFormat?: string
+): LatestReleasesMap<TPackages> {
+    const tagRegex = getTagRegex(packageNames, tagFormat)
+    const result: LatestReleasesMap<TPackages> = Object.assign({}, ...packageNames.map((pkg) => ({ [pkg]: null })))
+
+    for (const tag of tags) {
+        const match = tag.match(tagRegex)
+        if (match) {
+            const groups = match.groups!
+            const packageName = groups.package as TPackages[number]
+            const release: PackageVersion = {
+                major: parseInt(groups.major),
+                minor: parseInt(groups.minor),
+                patch: parseInt(groups.patch),
+            }
+            result[packageName] = _maxVersion(result[packageName], release)
+        }
+    }
+
+    return result
 }
