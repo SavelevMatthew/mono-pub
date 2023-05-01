@@ -3,7 +3,8 @@
   "version": "0.0.0-development",
   "description": "Simple tool for publishing your npm packages that live in a monorepo",
   "scripts": {
-    "lint": "eslint packages && prettier --check packages"
+    "lint": "eslint packages && prettier --check packages",
+    "test": "jest"
   },
   "workspaces": [
     "packages/*"
