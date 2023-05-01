@@ -77,13 +77,12 @@ export function getLatestReleases<TPackages extends ReadonlyArray<string>>(
 
     for (const tag of tags) {
         const match = tag.match(tagRegex)
-        if (match) {
-            const groups = match.groups!
-            const packageName = groups.package as TPackages[number]
+        if (match && match.groups) {
+            const packageName = match.groups.package as TPackages[number]
             const release: PackageVersion = {
-                major: parseInt(groups.major),
-                minor: parseInt(groups.minor),
-                patch: parseInt(groups.patch),
+                major: parseInt(match.groups.major),
+                minor: parseInt(match.groups.minor),
+                patch: parseInt(match.groups.patch),
             }
             result[packageName] = _maxVersion(result[packageName], release)
         }

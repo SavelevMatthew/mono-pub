@@ -19,6 +19,7 @@ module.exports = {
         'jest/no-identical-title': 'error',
         'jest/prefer-to-have-length': 'warn',
         'jest/valid-expect': 'error',
+        'jest/no-conditional-expect': 'warn',
         '@typescript-eslint/array-type': ['error', { default: 'generic', readonly: 'generic' }],
         '@typescript-eslint/consistent-type-assertions': [
             'error',
@@ -34,6 +35,7 @@ module.exports = {
     parserOptions: {
         ecmaVersion: 2019,
         sourceType: 'module',
+        project: ['tsconfig.base.json'],
     },
     env: {
         'jest/globals': true,

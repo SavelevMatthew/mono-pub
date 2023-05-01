@@ -56,16 +56,16 @@ describe('Tags utils', () => {
                 const matchingTags: Array<ParsedTag> = []
                 for (const tag of tags) {
                     const match = tag.match(tagRegex)
-                    if (match) {
+                    if (match && match.groups) {
                         expect(match.groups).toBeDefined()
                         expect(match.groups).toHaveProperty('package')
                         expect(match.groups).toHaveProperty('major')
                         expect(match.groups).toHaveProperty('minor')
                         expect(match.groups).toHaveProperty('patch')
-                        const packageName = match.groups!.package
-                        const major = parseInt(match.groups!.major)
-                        const minor = parseInt(match.groups!.minor)
-                        const patch = parseInt(match.groups!.patch)
+                        const packageName = match.groups.package
+                        const major = parseInt(match.groups.major)
+                        const minor = parseInt(match.groups.minor)
+                        const patch = parseInt(match.groups.patch)
                         expect(major).not.toBeNaN()
                         expect(minor).not.toBeNaN()
                         expect(patch).not.toBeNaN()
