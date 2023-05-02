@@ -1,0 +1,24 @@
+{
+  "name": "mono-pub",
+  "version": "0.0.0-development",
+  "description": "Simple tool for publishing your npm packages that live in a monorepo",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:SavelevMatthew/mono-pub.git",
+    "directory": "packages/mono-pub"
+  },
+  "author": {
+    "name": "Matthew Savelev",
+    "email": "savelevmatthew@gmail.com",
+    "url": "https://github.com/SavelevMatthew"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/lodash": "^4.14.194",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "glob": "^10.2.2",
+    "lodash": "^4.17.21"
+  }
+}

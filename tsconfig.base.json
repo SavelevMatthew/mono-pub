@@ -3,7 +3,7 @@
     "display": "Base",
     "compilerOptions": {
         "target": "ES5",
-        "module": "CommonJS",
+        "module": "Node16",
         "allowSyntheticDefaultImports": true,
         "composite": true,
         "declaration": true,
@@ -13,7 +13,7 @@
         "inlineSources": false,
         "importHelpers": true,
         "isolatedModules": true,
-        "moduleResolution": "Node",
+        "moduleResolution": "Node16",
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "preserveWatchOutput": true,
