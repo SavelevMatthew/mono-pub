@@ -4,15 +4,27 @@ import uniq from 'lodash/uniq'
 import fs, { promises as fsPromises } from 'fs'
 import get from 'lodash/get'
 
-async function _isPrivatePackage(filePath: string): Promise<boolean> {
-    const content = await fsPromises.readFile(filePath)
-    const pkg = JSON.parse(content.toString())
-    const pkgPrivateField = get(pkg, 'private', false)
-
-    return pkgPrivateField === 'true' || pkgPrivateField === true
+type PackageScanInfo = {
+    name: string | null
+    private: boolean
 }
 
-export async function getAllPackages(paths: Array<string>, cwd: string): Promise<Array<string>> {
+type PackageInfo = {
+    name: string
+    path: string
+}
+
+async function _scanPackage(filePath: string): Promise<PackageScanInfo> {
+    const content = await fsPromises.readFile(filePath)
+    const pkg = JSON.parse(content.toString())
+    const name = get(pkg, 'name', null)
+    const privateFieldValue = get(pkg, 'private', false)
+    const isPrivate = privateFieldValue === 'true' || privateFieldValue === true
+
+    return { private: isPrivate, name }
+}
+
+export async function getAllPackages(paths: Array<string>, cwd: string): Promise<Array<PackageInfo>> {
     const matches = await glob(paths, { cwd, stat: true, withFileTypes: true })
 
     const fileNames: Array<string> = []
@@ -28,8 +40,17 @@ export async function getAllPackages(paths: Array<string>, cwd: string): Promise
         }
     }
 
-    const uniqPkgNames = uniq(fileNames)
-    const privateInfo = await Promise.all(uniqPkgNames.map(_isPrivatePackage))
+    const uniqPkgFileNames = uniq(fileNames)
+    const packagesInfo = await Promise.all(uniqPkgFileNames.map(_scanPackage))
 
-    return uniqPkgNames.filter((_, idx) => !privateInfo[idx])
+    const result: Array<PackageInfo> = []
+
+    uniqPkgFileNames.forEach((filename, idx) => {
+        const info = packagesInfo[idx]
+        if (!info.private && info.name) {
+            result.push({ name: info.name, path: filename })
+        }
+    })
+
+    return result
 }
