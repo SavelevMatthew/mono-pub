@@ -13,7 +13,8 @@
     "url": "https://github.com/SavelevMatthew"
   },
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "lint": "eslint src && prettier --check src"
   },
   "license": "MIT",
   "files": [
@@ -23,8 +24,12 @@
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "devDependencies": {
+    "@mono-pub/eslint-config": "workspace:^",
+    "@mono-pub/ts-config": "workspace:^",
+    "@rushstack/eslint-patch": "^1.2.0",
     "@types/lodash": "^4.14.194",
     "@types/signale": "^1.4.4",
+    "eslint": "^8.39.0",
     "tsup": "^6.7.0",
     "typescript": "^5.0.4"
   },
