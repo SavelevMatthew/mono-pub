@@ -7,7 +7,7 @@ function expectContainingPackages(packages: Array<string>, scope?: string) {
     return expect.arrayContaining(
         packages.map((pkg) => ({
             name: scope ? `@${scope}/${pkg}` : pkg,
-            path: expect.stringContaining(pkg),
+            location: expect.stringContaining(pkg),
         }))
     )
 }

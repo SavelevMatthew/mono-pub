@@ -35,7 +35,7 @@ module.exports = {
     parserOptions: {
         ecmaVersion: 2019,
         sourceType: 'module',
-        project: ['tsconfig.base.json'],
+        project: ['tsconfig.json'],
     },
     env: {
         'jest/globals': true,

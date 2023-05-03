@@ -7,6 +7,9 @@
     "url": "git@github.com:SavelevMatthew/mono-pub.git",
     "directory": "packages/git"
   },
+  "scripts": {
+    "lint": "eslint src && prettier --check src"
+  },
   "author": {
     "name": "Matthew Savelev",
     "email": "savelevmatthew@gmail.com",
@@ -14,6 +17,8 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@mono-pub/eslint-config": "workspace:^",
+    "@mono-pub/ts-config": "workspace:^",
     "typescript": "^5.0.4"
   }
 }
