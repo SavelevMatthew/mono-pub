@@ -1,7 +1,0 @@
-{
-  "root": true,
-  "extends": ["@mono-pub/eslint-config"],
-  "rules": {
-    "jest/no-conditional-expect": "off"
-  }
-}

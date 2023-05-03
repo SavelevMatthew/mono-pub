@@ -19,6 +19,8 @@
   "devDependencies": {
     "@mono-pub/eslint-config": "workspace:^",
     "@mono-pub/ts-config": "workspace:^",
+    "@rushstack/eslint-patch": "^1.2.0",
+    "eslint": "^8.39.0",
     "typescript": "^5.0.4"
   }
 }
