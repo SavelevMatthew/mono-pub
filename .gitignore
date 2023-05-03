@@ -32,3 +32,6 @@ node_modules
 
 # Jesy
 coverage
+
+# Artifacts
+dist

@@ -12,13 +12,25 @@
     "email": "savelevmatthew@gmail.com",
     "url": "https://github.com/SavelevMatthew"
   },
+  "scripts": {
+    "build": "tsup"
+  },
   "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "devDependencies": {
     "@types/lodash": "^4.14.194",
+    "@types/signale": "^1.4.4",
+    "tsup": "^6.7.0",
     "typescript": "^5.0.4"
   },
   "dependencies": {
     "glob": "^10.2.2",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "signale": "^1.4.0"
   }
 }

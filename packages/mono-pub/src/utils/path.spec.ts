@@ -53,8 +53,8 @@ describe('getAllPackages', () => {
         const packages = await getAllPackages(['packages/*'], cwd)
         expect(packages).not.toHaveLength(0)
         for (const packagePath of packages) {
-            expect(path.basename(packagePath.path)).toBe('package.json')
-            expect(path.isAbsolute(packagePath.path)).toBe(true)
+            expect(path.basename(packagePath.location)).toBe('package.json')
+            expect(path.isAbsolute(packagePath.location)).toBe(true)
         }
     })
     it('Should exclude nonexistent files', async () => {

@@ -3,15 +3,11 @@ import path from 'path'
 import uniq from 'lodash/uniq'
 import fs, { promises as fsPromises } from 'fs'
 import get from 'lodash/get'
+import type { BasePackageInfo } from '@/types/packages'
 
 type PackageScanInfo = {
     name: string | null
     private: boolean
-}
-
-type PackageInfo = {
-    name: string
-    path: string
 }
 
 async function _scanPackage(filePath: string): Promise<PackageScanInfo> {
@@ -24,7 +20,7 @@ async function _scanPackage(filePath: string): Promise<PackageScanInfo> {
     return { private: isPrivate, name }
 }
 
-export async function getAllPackages(paths: Array<string>, cwd: string): Promise<Array<PackageInfo>> {
+export async function getAllPackages(paths: Array<string>, cwd: string): Promise<Array<BasePackageInfo>> {
     const matches = await glob(paths, { cwd, stat: true, withFileTypes: true })
 
     const fileNames: Array<string> = []
@@ -43,12 +39,12 @@ export async function getAllPackages(paths: Array<string>, cwd: string): Promise
     const uniqPkgFileNames = uniq(fileNames)
     const packagesInfo = await Promise.all(uniqPkgFileNames.map(_scanPackage))
 
-    const result: Array<PackageInfo> = []
+    const result: Array<BasePackageInfo> = []
 
     uniqPkgFileNames.forEach((filename, idx) => {
         const info = packagesInfo[idx]
         if (!info.private && info.name) {
-            result.push({ name: info.name, path: filename })
+            result.push({ name: info.name, location: filename })
         }
     })
 
