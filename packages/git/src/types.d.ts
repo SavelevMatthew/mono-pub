@@ -3,7 +3,3 @@ export type ParsedTag = PackageVersion & {
 }
 
 export type LatestRelease = PackageVersion | null
-
-type LatestReleasesMap<TPackages extends ReadonlyArray<string>> = {
-    [Key in TPackages[number]]: LatestRelease
-}

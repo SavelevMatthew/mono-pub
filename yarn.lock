@@ -960,8 +960,11 @@ __metadata:
     "@mono-pub/ts-config": "workspace:^"
     "@rushstack/eslint-patch": ^1.2.0
     eslint: ^8.39.0
+    execa: ^5
     mono-pub: "workspace:^"
     typescript: ^5.0.4
+  peerDependencies:
+    mono-pub: "workspace:^"
   languageName: unknown
   linkType: soft
 
@@ -2592,7 +2595,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"execa@npm:^5.0.0":
+"execa@npm:^5, execa@npm:^5.0.0":
   version: 5.1.1
   resolution: "execa@npm:5.1.1"
   dependencies:

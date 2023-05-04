@@ -16,14 +16,18 @@
     "url": "https://github.com/SavelevMatthew"
   },
   "license": "MIT",
+  "peerDependencies": {
+    "mono-pub": "workspace:^"
+  },
   "devDependencies": {
     "@mono-pub/eslint-config": "workspace:^",
     "@mono-pub/ts-config": "workspace:^",
     "@rushstack/eslint-patch": "^1.2.0",
     "eslint": "^8.39.0",
+    "mono-pub": "workspace:^",
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "mono-pub": "workspace:^"
+    "execa": "^5"
   }
 }

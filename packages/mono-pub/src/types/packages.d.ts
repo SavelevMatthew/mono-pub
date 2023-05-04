@@ -9,6 +9,4 @@ export type PackageVersion = {
     patch: number
 }
 
-export type LastReleaseInfo<TPackages extends string> = {
-    [Key in TPackages]: PackageVersion | null
-}
+export type LastReleaseInfo = Record<string, PackageVersion | null>
