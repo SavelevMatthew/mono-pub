@@ -1,9 +1,3 @@
-export type PackageVersion = {
-    major: number
-    minor: number
-    patch: number
-}
-
 export type ParsedTag = PackageVersion & {
     package: string
 }

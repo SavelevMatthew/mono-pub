@@ -1,5 +1,5 @@
 import { getTagRegex, _maxVersion, getLatestReleases } from './tags'
-import type { ParsedTag, LatestRelease } from '../types'
+import type { ParsedTag, LatestRelease } from '@/types'
 
 describe('Tags utils', () => {
     describe('getTagRegex', () => {

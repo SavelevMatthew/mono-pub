@@ -3,7 +3,7 @@ import path from 'path'
 import uniq from 'lodash/uniq'
 import fs, { promises as fsPromises } from 'fs'
 import get from 'lodash/get'
-import type { BasePackageInfo } from '@/types/packages'
+import type { BasePackageInfo } from '@/types'
 
 type PackageScanInfo = {
     name: string | null

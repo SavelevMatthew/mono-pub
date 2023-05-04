@@ -1,4 +1,5 @@
-import type { LatestRelease, LatestReleasesMap, PackageVersion } from '../types'
+import type { LatestRelease, LatestReleasesMap } from '@/types'
+import type { PackageVersion } from 'mono-pub'
 
 const VERSION_PLACEHOLDER = '{version}'
 const NAME_PLACEHOLDER = '{name}'

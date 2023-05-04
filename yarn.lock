@@ -960,6 +960,7 @@ __metadata:
     "@mono-pub/ts-config": "workspace:^"
     "@rushstack/eslint-patch": ^1.2.0
     eslint: ^8.39.0
+    mono-pub: "workspace:^"
     typescript: ^5.0.4
   languageName: unknown
   linkType: soft
@@ -4471,7 +4472,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mono-pub@workspace:packages/mono-pub":
+"mono-pub@workspace:^, mono-pub@workspace:packages/mono-pub":
   version: 0.0.0-use.local
   resolution: "mono-pub@workspace:packages/mono-pub"
   dependencies:

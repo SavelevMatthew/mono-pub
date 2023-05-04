@@ -1,8 +1,9 @@
 import { getAllPackages } from '@/utils/path'
 import getLogger from '@/logger'
 
-import type { MonoPubPlugin } from '@/types/plugins'
-import type { MonoPubContext, MonoPubOptions } from '@/types/config'
+import type { MonoPubPlugin, MonoPubContext, MonoPubOptions } from '@/types'
+
+export type * from '@/types'
 
 export default async function publish(
     paths: Array<string>,
