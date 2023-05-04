@@ -1,13 +1,20 @@
 import { getAllPackages } from '@/utils/path'
 import getLogger from '@/logger'
+import { CombinedPlugin } from '@/utils/plugins'
 
 import type { MonoPubPlugin, MonoPubContext, MonoPubOptions } from '@/types'
 
 export type * from '@/types'
 
+/**
+ *
+ * @param paths {Array<string>} List of globes or paths to packages that need to be released
+ * @param plugins {Array<string>} List
+ * @param options
+ */
 export default async function publish(
     paths: Array<string>,
-    _plugins: Array<MonoPubPlugin>,
+    plugins: Array<MonoPubPlugin>,
     options: MonoPubOptions = {}
 ) {
     const { stdout = process.stdout, stderr = process.stderr, ...restOptions } = options
@@ -22,11 +29,16 @@ export default async function publish(
     logger.info('Starting releasing process...')
     const packages = await getAllPackages(paths, context.cwd)
     if (!packages.length) {
-        logger.info('No matching packages found. Exiting...')
+        logger.success('No matching packages found. Exiting...')
         return
     }
 
     logger.success(
         `Found ${packages.length} packages to release: [${packages.map((pkg) => `"${pkg.name}"`).join(', ')}]`
     )
+    logger.info(
+        `Found ${plugins.length} to form release chain: [${plugins.map((plugin) => `"${plugin.name}"`).join(', ')}]`
+    )
+    const releaseChain = new CombinedPlugin(plugins)
+    await releaseChain.setup(context)
 }
