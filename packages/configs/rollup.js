@@ -1,11 +1,11 @@
-import typescript from '@rollup/plugin-typescript'
-import sourcemaps from 'rollup-plugin-sourcemaps'
-import externals from 'rollup-plugin-node-externals'
-import dts from 'rollup-plugin-dts'
-import del from 'rollup-plugin-delete'
-import alias from '@rollup/plugin-alias'
-import json from '@rollup/plugin-json'
-import path from 'path'
+const typescript = require('@rollup/plugin-typescript')
+const sourcemaps = require('rollup-plugin-sourcemaps')
+const externals = require('rollup-plugin-node-externals')
+const dts = require('rollup-plugin-dts').default
+const del = require('rollup-plugin-delete')
+const alias = require('@rollup/plugin-alias')
+const json = require('@rollup/plugin-json')
+const path = require('path')
 
 /**
  * @param {string} input - input file location
@@ -14,7 +14,7 @@ import path from 'path'
  * @param {{clean?: boolean, withTypes?: boolean}} opts - object with options. If clean is specified, will clean dist dir. If withTypes is specified will produce types declarations
  * @return {import('rollup').RollupOptions}
  */
-export function filePipe(input, cjs, esm, opts = {}) {
+function filePipe(input, cjs, esm, opts = {}) {
     return {
         input,
         output: [
@@ -57,7 +57,7 @@ export function filePipe(input, cjs, esm, opts = {}) {
  * @param {{cleanTypes?: boolean}} opts - object with options. If cleanTypes is specified, will clean dist/dts dir
  * @return {import('rollup').RollupOptions}
  */
-export function typePipe(input, output, opts) {
+function typePipe(input, output, opts) {
     return {
         input,
         output: [
@@ -79,4 +79,9 @@ export function typePipe(input, output, opts) {
             opts.cleanTypes && del({ targets: 'dist/dts', hook: 'buildEnd' }),
         ].filter(Boolean),
     }
+}
+
+module.exports = {
+    filePipe,
+    typePipe,
 }
