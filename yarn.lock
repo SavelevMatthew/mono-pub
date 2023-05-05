@@ -788,6 +788,7 @@ __metadata:
   resolution: "@mono-pub/configs@workspace:packages/configs"
   dependencies:
     "@rollup/plugin-alias": ^5.0.0
+    "@rollup/plugin-json": ^6.0.0
     "@rollup/plugin-typescript": ^11.1.0
     "@typescript-eslint/eslint-plugin": ^5.59.1
     "@typescript-eslint/parser": ^5.59.1
@@ -795,7 +796,6 @@ __metadata:
     eslint-import-resolver-typescript: ^3.5.5
     eslint-plugin-import: ^2.27.5
     eslint-plugin-jest: ^27.2.1
-    rollup: ^3.21.5
     rollup-plugin-delete: ^2.0.0
     rollup-plugin-dts: ^5.3.0
     rollup-plugin-node-externals: ^5.1.2
@@ -814,6 +814,7 @@ __metadata:
     eslint: ^8.39.0
     execa: ^5
     mono-pub: "workspace:^"
+    rollup: ^3.21.5
     typescript: ^5.0.4
   peerDependencies:
     mono-pub: "workspace:^"
@@ -912,6 +913,20 @@ __metadata:
     rollup:
       optional: true
   checksum: 2810bdbcaa61381998858379e353d573f266f952d7f6974366336ae0587acfdee12b992fe25c9b740f14e25092d6bf73b04bcbf71fc543d76d1a214547bc27c9
+  languageName: node
+  linkType: hard
+
+"@rollup/plugin-json@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@rollup/plugin-json@npm:6.0.0"
+  dependencies:
+    "@rollup/pluginutils": ^5.0.1
+  peerDependencies:
+    rollup: ^1.20.0||^2.0.0||^3.0.0
+  peerDependenciesMeta:
+    rollup:
+      optional: true
+  checksum: 77cfc941edaf77a5307977704ffaba706d83bea66f265b2b68f14be2a0af6d08b0fb1b04fdd773146c84cc70938ff64b00ae946808fd6ac057058af824d78128
   languageName: node
   linkType: hard
 
@@ -4317,6 +4332,7 @@ __metadata:
     eslint: ^8.39.0
     glob: ^10.2.2
     lodash: ^4.17.21
+    rollup: ^3.21.5
     signale: ^1.4.0
     tslib: ^2.5.0
     typescript: ^5.0.4

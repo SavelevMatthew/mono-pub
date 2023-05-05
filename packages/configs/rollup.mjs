@@ -4,6 +4,7 @@ import externals from 'rollup-plugin-node-externals'
 import dts from 'rollup-plugin-dts'
 import del from 'rollup-plugin-delete'
 import alias from '@rollup/plugin-alias'
+import json from '@rollup/plugin-json'
 import path from 'path'
 
 /**
@@ -44,6 +45,7 @@ export function filePipe(input, cjs, esm, opts = {}) {
                       tsconfig: './tsconfig.json',
                       compilerOptions: { declaration: false },
                   }),
+            json(),
             sourcemaps(),
         ].filter(Boolean),
     }
@@ -57,10 +59,10 @@ export function filePipe(input, cjs, esm, opts = {}) {
  */
 export function typePipe(input, output, opts) {
     return {
-        input: 'dist/dts/index.d.ts',
+        input,
         output: [
             {
-                file: 'dist/index.d.ts',
+                file: output,
                 format: 'es',
             },
         ],
