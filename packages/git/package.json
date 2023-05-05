@@ -20,8 +20,7 @@
     "mono-pub": "workspace:^"
   },
   "devDependencies": {
-    "@mono-pub/eslint-config": "workspace:^",
-    "@mono-pub/ts-config": "workspace:^",
+    "@mono-pub/configs": "workspace:^",
     "@rushstack/eslint-patch": "^1.2.0",
     "eslint": "^8.39.0",
     "mono-pub": "workspace:^",

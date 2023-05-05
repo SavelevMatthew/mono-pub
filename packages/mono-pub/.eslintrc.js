@@ -1,6 +1,7 @@
+const baseConfigPath = require.resolve('@mono-pub/configs/eslint')
 require('@rushstack/eslint-patch/modern-module-resolution')
 
 module.exports = {
     root: true,
-    extends: ['@mono-pub/eslint-config'],
+    extends: [baseConfigPath],
 }

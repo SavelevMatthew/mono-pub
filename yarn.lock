@@ -783,16 +783,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mono-pub/eslint-config@workspace:^, @mono-pub/eslint-config@workspace:packages/eslint-config":
+"@mono-pub/configs@workspace:^, @mono-pub/configs@workspace:packages/configs":
   version: 0.0.0-use.local
-  resolution: "@mono-pub/eslint-config@workspace:packages/eslint-config"
+  resolution: "@mono-pub/configs@workspace:packages/configs"
   dependencies:
+    "@rollup/plugin-alias": ^5.0.0
+    "@rollup/plugin-typescript": ^11.1.0
     "@typescript-eslint/eslint-plugin": ^5.59.1
     "@typescript-eslint/parser": ^5.59.1
     eslint: ^8.39.0
     eslint-import-resolver-typescript: ^3.5.5
     eslint-plugin-import: ^2.27.5
     eslint-plugin-jest: ^27.2.1
+    rollup: ^3.21.5
+    rollup-plugin-delete: ^2.0.0
+    rollup-plugin-dts: ^5.3.0
+    rollup-plugin-node-externals: ^5.1.2
+    rollup-plugin-sourcemaps: ^0.6.3
   peerDependencies:
     jest: "*"
   languageName: unknown
@@ -802,8 +809,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@mono-pub/git@workspace:packages/git"
   dependencies:
-    "@mono-pub/eslint-config": "workspace:^"
-    "@mono-pub/ts-config": "workspace:^"
+    "@mono-pub/configs": "workspace:^"
     "@rushstack/eslint-patch": ^1.2.0
     eslint: ^8.39.0
     execa: ^5
@@ -824,12 +830,6 @@ __metadata:
     ts-jest: ^29.1.0
     turbo: ^1.9.3
     typescript: ^5.0.4
-  languageName: unknown
-  linkType: soft
-
-"@mono-pub/ts-config@workspace:^, @mono-pub/ts-config@workspace:packages/ts-config":
-  version: 0.0.0-use.local
-  resolution: "@mono-pub/ts-config@workspace:packages/ts-config"
   languageName: unknown
   linkType: soft
 
@@ -4310,21 +4310,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "mono-pub@workspace:packages/mono-pub"
   dependencies:
-    "@mono-pub/eslint-config": "workspace:^"
-    "@mono-pub/ts-config": "workspace:^"
-    "@rollup/plugin-alias": ^5.0.0
-    "@rollup/plugin-typescript": ^11.1.0
+    "@mono-pub/configs": "workspace:^"
     "@rushstack/eslint-patch": ^1.2.0
     "@types/lodash": ^4.14.194
     "@types/signale": ^1.4.4
     eslint: ^8.39.0
     glob: ^10.2.2
     lodash: ^4.17.21
-    rollup: ^3.21.5
-    rollup-plugin-delete: ^2.0.0
-    rollup-plugin-dts: ^5.3.0
-    rollup-plugin-node-externals: ^5.1.2
-    rollup-plugin-sourcemaps: ^0.6.3
     signale: ^1.4.0
     tslib: ^2.5.0
     typescript: ^5.0.4
