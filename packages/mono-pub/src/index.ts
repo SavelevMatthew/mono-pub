@@ -36,9 +36,13 @@ export default async function publish(
     logger.success(
         `Found ${packages.length} packages to release: [${packages.map((pkg) => `"${pkg.name}"`).join(', ')}]`
     )
-    logger.info(
+    logger.success(
         `Found ${plugins.length} to form release chain: [${plugins.map((plugin) => `"${plugin.name}"`).join(', ')}]`
     )
+    logger.log('Starting the process of assembling the release chain')
     const releaseChain = new CombinedPlugin(plugins)
-    await releaseChain.setup(context)
+    const success = await releaseChain.setup(context)
+    if (!success) {
+        process.exit(1)
+    }
 }

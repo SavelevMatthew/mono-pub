@@ -805,7 +805,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@mono-pub/git@workspace:packages/git":
+"@mono-pub/git@workspace:^, @mono-pub/git@workspace:packages/git":
   version: 0.0.0-use.local
   resolution: "@mono-pub/git@workspace:packages/git"
   dependencies:
@@ -825,8 +825,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@mono-pub/root@workspace:."
   dependencies:
+    "@mono-pub/git": "workspace:^"
     "@types/jest": ^29.5.1
     jest: ^29.5.0
+    mono-pub: "workspace:^"
     prettier: ^2.8.8
     ts-jest: ^29.1.0
     turbo: ^1.9.3

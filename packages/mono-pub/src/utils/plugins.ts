@@ -29,10 +29,10 @@ export class CombinedPlugin implements MonoPubPlugin {
                     logger.log(
                         `Found "getLastRelease" step of "${plugin.name}" plugin. Overriding previous one from "${this.versionGetter.name}"`
                     )
-                    this.versionGetter = plugin as WithGetLastRelease
                 } else {
                     logger.log(`Found "getLastRelease" step of "${plugin.name}" plugin`)
                 }
+                this.versionGetter = plugin as WithGetLastRelease
             }
         }
 
@@ -45,9 +45,12 @@ export class CombinedPlugin implements MonoPubPlugin {
             logger.log(`Running "setup" step of "${plugin.name}" plugin`)
             const success = await plugin.setup(ctx)
             if (!success) {
+                logger.error(`Conditions for setting up plugin ${plugin.name} have not been met. Aborting`)
                 return false
             }
         }
+
+        logger.success('All plugins are set up and ready to use')
 
         return true
     }
