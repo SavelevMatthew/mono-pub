@@ -19,4 +19,12 @@ export type PackageVersion = {
     patch: number
 }
 
-export type LastReleaseInfo = Record<string, PackageVersion | null>
+export type LastRelease = PackageVersion | null
+
+export type ReleasePackageInfo = BasePackageInfo & {
+    lastRelease: LastRelease
+}
+
+export type LastReleaseInfo = Record<string, LastRelease>
+
+export type ReleaseType = keyof PackageVersion | 'none'

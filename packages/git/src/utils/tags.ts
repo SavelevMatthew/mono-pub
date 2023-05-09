@@ -104,3 +104,8 @@ export function getLatestReleases(
 
     return result
 }
+
+export function getTagFromVersion(tagFormat: string, pkgName: string, version: PackageVersion) {
+    const versionPart = `${version.major}.${version.minor}.${version.patch}`
+    return tagFormat.replace(NAME_PLACEHOLDER, pkgName).replace(VERSION_PLACEHOLDER, versionPart)
+}

@@ -1,5 +1,5 @@
 import type { MonoPubContext } from './config'
-import type { BasePackageInfo, LastReleaseInfo } from './packages'
+import type { BasePackageInfo, LastReleaseInfo, ReleasePackageInfo, ReleaseType } from './packages'
 
 type Awaitable<T> = T | Promise<T>
 
@@ -23,4 +23,19 @@ export interface MonoPubPlugin {
      * @return {Awaitable<LastReleaseInfo>} Object with packages names as keys and PackageVersion or null as values
      */
     getLastRelease?(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Awaitable<LastReleaseInfo>
+
+    /**
+     * Gets list of commits, which is relevant to package and happened after latest known release.
+     * @param pkgInfo {ReleasePackageInfo} Information about package containing "lastRelease" - latest released version
+     * @param ctx{MonoPubContext} Execution context. Used to obtain cwd, env and logger
+     * @return {Array<string>} List of commits messages
+     */
+    extractCommits?(pkgInfo: ReleasePackageInfo, ctx: MonoPubContext): Awaitable<Array<string>>
+
+    /**
+     * Parse commits messages and determines release type ("major", "minor", "patch" or "none") based on them.
+     * @param commits {Array<string>} commits messages
+     * @return {ReleaseType} type of release
+     */
+    getReleaseType?(commits: Array<string>): Awaitable<ReleaseType>
 }
