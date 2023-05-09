@@ -29,9 +29,13 @@
   "devDependencies": {
     "@mono-pub/configs": "workspace:^",
     "@rushstack/eslint-patch": "^1.2.0",
+    "@types/conventional-commits-parser": "^3.0.3",
     "eslint": "^8.39.0",
     "mono-pub": "workspace:^",
     "rollup": "^3.21.5",
     "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "conventional-commits-parser": "^3.2.4"
   }
 }
