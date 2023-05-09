@@ -54,7 +54,7 @@ function filePipe(input, cjs, esm, opts = {}) {
 /**
  * @param {string} input - input file location
  * @param {string} output - output file location
- * @param {{cleanTypes?: boolean}} opts - object with options. If cleanTypes is specified, will clean dist/dts dir
+ * @param {{cleanTypes?: boolean, typesDir?: string}} opts - object with options. If cleanTypes is specified, will clean dist/dts dir
  * @return {import('rollup').RollupOptions}
  */
 function typePipe(input, output, opts) {
@@ -71,7 +71,7 @@ function typePipe(input, output, opts) {
                 entries: [
                     {
                         find: '@',
-                        replacement: path.resolve('./dist/dts'),
+                        replacement: path.resolve('./dist/dts', opts.typesDir || '.'),
                     },
                 ],
             }),
