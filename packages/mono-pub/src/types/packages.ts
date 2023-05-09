@@ -3,6 +3,16 @@ export type BasePackageInfo = {
     location: string
 }
 
+export type DependencyInfo = {
+    name: string
+    type: 'dep' | 'devDep'
+    value: string
+}
+
+export type DependenciesPackageInfo = BasePackageInfo & {
+    dependsOn: Array<DependencyInfo>
+}
+
 export type PackageVersion = {
     major: number
     minor: number

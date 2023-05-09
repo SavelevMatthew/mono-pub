@@ -1,8 +1,9 @@
 import { getAllPackages } from '@/utils/path'
 import getLogger from '@/logger'
 import { CombinedPlugin } from '@/utils/plugins'
+import { getDependencies, getReleaseOrder } from '@/utils/deps'
 
-import type { MonoPubPlugin, MonoPubContext, MonoPubOptions } from '@/types'
+import type { MonoPubPlugin, MonoPubContext, MonoPubOptions, DependenciesPackageInfo } from '@/types'
 
 export type * from '@/types'
 
@@ -36,13 +37,42 @@ export default async function publish(
     logger.success(
         `Found ${packages.length} packages to release: [${packages.map((pkg) => `"${pkg.name}"`).join(', ')}]`
     )
+    logger.log('Calculating release order based on packages dependencies and devDependencies...')
+    let packagesWithDeps: Array<DependenciesPackageInfo> = []
+    let releaseOrder: Array<string> = []
+
+    try {
+        packagesWithDeps = await getDependencies(packages)
+        releaseOrder = getReleaseOrder(packagesWithDeps)
+    } catch (err) {
+        if (err instanceof Error) {
+            logger.error(err.message)
+        }
+        process.exit(1)
+    }
+
+    logger.success(`Packages release order: [${releaseOrder.map((pkg) => `"${pkg}"`).join(', ')}]`)
+
     logger.success(
-        `Found ${plugins.length} to form release chain: [${plugins.map((plugin) => `"${plugin.name}"`).join(', ')}]`
+        `Found ${plugins.length} plugins to form release chain: [${plugins
+            .map((plugin) => `"${plugin.name}"`)
+            .join(', ')}]`
     )
     logger.log('Starting the process of assembling the release chain')
     const releaseChain = new CombinedPlugin(plugins)
     const success = await releaseChain.setup(context)
     if (!success) {
         process.exit(1)
+    }
+    logger.log('Searching for the latest releases...')
+    const latestReleases = await releaseChain.getLastRelease(packages, context)
+    for (const [packageName, release] of Object.entries(latestReleases)) {
+        if (!release) {
+            logger.scope(packageName).log('No releases found...')
+        } else {
+            logger
+                .scope(packageName)
+                .log(`Found latest release version: ${release.major}.${release.minor}.${release.patch}`)
+        }
     }
 }
