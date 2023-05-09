@@ -783,6 +783,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mono-pub/commit-analyzer@workspace:packages/commit-analyzer":
+  version: 0.0.0-use.local
+  resolution: "@mono-pub/commit-analyzer@workspace:packages/commit-analyzer"
+  dependencies:
+    "@mono-pub/configs": "workspace:^"
+    "@rushstack/eslint-patch": ^1.2.0
+    eslint: ^8.39.0
+    mono-pub: "workspace:^"
+    rollup: ^3.21.5
+    typescript: ^5.0.4
+  peerDependencies:
+    mono-pub: "*"
+  languageName: unknown
+  linkType: soft
+
 "@mono-pub/configs@workspace:^, @mono-pub/configs@workspace:packages/configs":
   version: 0.0.0-use.local
   resolution: "@mono-pub/configs@workspace:packages/configs"

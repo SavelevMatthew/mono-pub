@@ -1,0 +1,37 @@
+{
+  "name": "@mono-pub/commit-analyzer",
+  "version": "0.0.0-development",
+  "description": "@mono-pub plugin to analyze commit messages",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:SavelevMatthew/mono-pub.git",
+    "directory": "packages/commit-analyzer"
+  },
+  "scripts": {
+    "lint": "eslint src && prettier --check src",
+    "build": "rollup -c"
+  },
+  "author": {
+    "name": "Matthew Savelev",
+    "email": "savelevmatthew@gmail.com",
+    "url": "https://github.com/SavelevMatthew"
+  },
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "peerDependencies": {
+    "mono-pub": "*"
+  },
+  "devDependencies": {
+    "@mono-pub/configs": "workspace:^",
+    "@rushstack/eslint-patch": "^1.2.0",
+    "eslint": "^8.39.0",
+    "mono-pub": "workspace:^",
+    "rollup": "^3.21.5",
+    "typescript": "^5.0.4"
+  }
+}
