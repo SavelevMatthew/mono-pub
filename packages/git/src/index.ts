@@ -1,13 +1,15 @@
 import { name } from '../package.json'
 import {
+    NAME_PLACEHOLDER,
+    VERSION_PLACEHOLDER,
     DEFAULT_TAG_FORMAT,
     getLatestReleases,
     getMergedTags,
     isValidTagFormat,
-    NAME_PLACEHOLDER,
-    VERSION_PLACEHOLDER,
+    getTagFromVersion,
 } from '@/utils/tags'
-import type { BasePackageInfo, LastReleaseInfo, MonoPubContext, MonoPubPlugin } from 'mono-pub'
+import { getAllPackageCommits } from '@/utils/commits'
+import type { BasePackageInfo, LastReleaseInfo, MonoPubContext, MonoPubPlugin, ReleasePackageInfo } from 'mono-pub'
 
 class MonoPubGit implements MonoPubPlugin {
     name = name
@@ -28,6 +30,12 @@ class MonoPubGit implements MonoPubPlugin {
         const tags = await getMergedTags(ctx.cwd)
         const packageNames = packages.map((pkg) => pkg.name)
         return getLatestReleases(tags, packageNames, this.tagFormat)
+    }
+
+    async extractCommits(pkgInfo: ReleasePackageInfo, ctx: MonoPubContext): Promise<Array<string>> {
+        const lastRelease = pkgInfo.lastRelease
+        const latestTag = lastRelease ? getTagFromVersion(this.tagFormat, pkgInfo.name, lastRelease) : null
+        return await getAllPackageCommits(pkgInfo, latestTag, ctx.cwd)
     }
 }
 

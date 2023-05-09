@@ -817,7 +817,7 @@ __metadata:
     rollup: ^3.21.5
     typescript: ^5.0.4
   peerDependencies:
-    mono-pub: "workspace:^"
+    mono-pub: "*"
   languageName: unknown
   linkType: soft
 
