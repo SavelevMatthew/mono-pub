@@ -1,15 +1,24 @@
-import type { MonoPubPlugin, MonoPubContext, BasePackageInfo, LastReleaseInfo, ReleasePackageInfo } from '@/types'
+import type {
+    MonoPubPlugin,
+    MonoPubContext,
+    BasePackageInfo,
+    LastReleaseInfo,
+    ReleasePackageInfo,
+    ReleaseType,
+} from '@/types'
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
 type WithSetup = WithRequired<MonoPubPlugin, 'setup'>
 type WithGetLastRelease = WithRequired<MonoPubPlugin, 'getLastRelease'>
 type WithExtractor = WithRequired<MonoPubPlugin, 'extractCommits'>
+type WithAnalyzer = WithRequired<MonoPubPlugin, 'getReleaseType'>
 
 export class CombinedPlugin implements MonoPubPlugin {
     name = 'CombinedPlugin'
     allPlugins: Array<MonoPubPlugin>
     versionGetter?: WithGetLastRelease
     extractor?: WithExtractor
+    analyzer?: WithAnalyzer
     neededSetup: Array<WithSetup> = []
 
     constructor(plugins: Array<MonoPubPlugin>) {
@@ -29,6 +38,7 @@ export class CombinedPlugin implements MonoPubPlugin {
 
         for (const plugin of this.allPlugins) {
             logger.log(`Scanning ${plugin.name} plugin`)
+
             if (plugin && plugin.setup) {
                 logger.log(this._getStepMessage('setup', plugin))
                 this.neededSetup.push(plugin as WithSetup)
@@ -42,6 +52,11 @@ export class CombinedPlugin implements MonoPubPlugin {
                 logger.log(this._getStepMessage('extractCommits', plugin, this.extractor))
                 this.extractor = plugin as WithExtractor
             }
+
+            if (plugin.getReleaseType) {
+                logger.log(this._getStepMessage('getReleaseType', plugin, this.analyzer))
+                this.analyzer = plugin as WithAnalyzer
+            }
         }
 
         if (!this.versionGetter) {
@@ -50,6 +65,11 @@ export class CombinedPlugin implements MonoPubPlugin {
         }
 
         if (!this.extractor) {
+            logger.error('No plugins with "extractCommits" step found')
+            return false
+        }
+
+        if (!this.analyzer) {
             logger.error('No plugins with "extractCommits" step found')
             return false
         }
@@ -80,7 +100,15 @@ export class CombinedPlugin implements MonoPubPlugin {
         if (!this.extractor) {
             throw new Error('No extractor found. You should run setup step before this')
         }
-        ctx.logger.info(`Running "extractCommits" of "${this.extractor.name}" plugin`)
+        ctx.logger.log(`Running "extractCommits" of "${this.extractor.name}" plugin`)
         return this.extractor.extractCommits(pkgInfo, ctx)
+    }
+
+    async getReleaseType(commits: Array<string>, ctx: MonoPubContext): Promise<ReleaseType> {
+        if (!this.analyzer) {
+            throw new Error('No analyzer found. You should run setup step before this')
+        }
+        ctx.logger.log(`Running "getReleaseType" of "${this.analyzer.name}" plugin`)
+        return this.analyzer.getReleaseType(commits, ctx)
     }
 }

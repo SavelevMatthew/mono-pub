@@ -27,7 +27,7 @@ export interface MonoPubPlugin {
     /**
      * Gets list of commits, which is relevant to package and happened after latest known release.
      * @param pkgInfo {ReleasePackageInfo} Information about package containing "lastRelease" - latest released version
-     * @param ctx{MonoPubContext} Execution context. Used to obtain cwd, env and logger
+     * @param ctx {MonoPubContext} Execution context. Used to obtain cwd, env and logger
      * @return {Array<string>} List of commits messages
      */
     extractCommits?(pkgInfo: ReleasePackageInfo, ctx: MonoPubContext): Awaitable<Array<string>>
@@ -35,7 +35,8 @@ export interface MonoPubPlugin {
     /**
      * Parse commits messages and determines release type ("major", "minor", "patch" or "none") based on them.
      * @param commits {Array<string>} commits messages
+     * @param ctx {MonoPubContext} Execution context. Used to obtain cwd, env and logger
      * @return {ReleaseType} type of release
      */
-    getReleaseType?(commits: Array<string>): Awaitable<ReleaseType>
+    getReleaseType?(commits: Array<string>, ctx: MonoPubContext): Awaitable<ReleaseType>
 }

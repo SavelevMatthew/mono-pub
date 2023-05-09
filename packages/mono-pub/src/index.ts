@@ -4,7 +4,7 @@ import getLogger from '@/logger'
 import { CombinedPlugin } from '@/utils/plugins'
 import { getDependencies, getReleaseOrder } from '@/utils/deps'
 
-import type { MonoPubPlugin, MonoPubContext, MonoPubOptions, DependenciesPackageInfo } from '@/types'
+import type { MonoPubPlugin, MonoPubContext, MonoPubOptions, DependenciesPackageInfo, ReleaseType } from '@/types'
 
 export type * from '@/types'
 
@@ -34,7 +34,15 @@ export default async function publish(
         logger.success('No matching packages found. Exiting...')
         return
     }
-    const scopedLoggers = Object.assign({}, ...packages.map((pkg) => ({ [pkg.name]: logger.scope(pkg.name) })))
+    const scopedContexts: Record<string, MonoPubContext> = Object.assign(
+        {},
+        ...packages.map((pkg) => ({
+            [pkg.name]: {
+                ...context,
+                logger: logger.scope(pkg.name),
+            },
+        }))
+    )
 
     logger.success(
         `Found ${packages.length} packages to release: [${packages.map((pkg) => `"${pkg.name}"`).join(', ')}]`
@@ -70,20 +78,23 @@ export default async function publish(
     const latestReleases = await releaseChain.getLastRelease(packages, context)
     for (const [packageName, release] of Object.entries(latestReleases)) {
         if (!release) {
-            scopedLoggers[packageName].log('No releases found...')
+            scopedContexts[packageName].logger.log('No releases found...')
         } else {
-            scopedLoggers[packageName].log(
+            scopedContexts[packageName].logger.log(
                 `Found latest release version: ${release.major}.${release.minor}.${release.patch}`
             )
         }
     }
 
     const newCommits: Record<string, Array<string>> = {}
+    const releaseTypes: Record<string, ReleaseType> = {}
 
     for (const pkg of packages) {
-        newCommits[pkg.name] = await releaseChain.extractCommits(
+        const commits = await releaseChain.extractCommits(
             { ...pkg, lastRelease: get(latestReleases, pkg.name, null) },
-            { ...context, logger: scopedLoggers[pkg.name] }
+            scopedContexts[pkg.name]
         )
+        newCommits[pkg.name] = commits
+        releaseTypes[pkg.name] = await releaseChain.getReleaseType(commits, scopedContexts[pkg.name])
     }
 }
