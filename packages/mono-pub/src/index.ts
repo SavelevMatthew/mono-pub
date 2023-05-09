@@ -4,7 +4,15 @@ import getLogger from '@/logger'
 import { CombinedPlugin } from '@/utils/plugins'
 import { getDependencies, getReleaseOrder } from '@/utils/deps'
 
-import type { MonoPubPlugin, MonoPubContext, MonoPubOptions, DependenciesPackageInfo, ReleaseType } from '@/types'
+import type {
+    MonoPubPlugin,
+    MonoPubContext,
+    MonoPubOptions,
+    DependenciesPackageInfo,
+    ReleaseType,
+    PackageVersion,
+} from '@/types'
+import { getNewVersion, versionToString } from '@/utils/versions'
 
 export type * from '@/types'
 
@@ -78,7 +86,7 @@ export default async function publish(
     const latestReleases = await releaseChain.getLastRelease(packages, context)
     for (const [packageName, release] of Object.entries(latestReleases)) {
         if (!release) {
-            scopedContexts[packageName].logger.log('No releases found...')
+            scopedContexts[packageName].logger.log('No previous releases found...')
         } else {
             scopedContexts[packageName].logger.log(
                 `Found latest release version: ${release.major}.${release.minor}.${release.patch}`
@@ -88,13 +96,35 @@ export default async function publish(
 
     const newCommits: Record<string, Array<string>> = {}
     const releaseTypes: Record<string, ReleaseType> = {}
+    const newVersions: Record<string, PackageVersion> = {}
 
     for (const pkg of packages) {
+        const scopedLogger = scopedContexts[pkg.name].logger
         const commits = await releaseChain.extractCommits(
             { ...pkg, lastRelease: get(latestReleases, pkg.name, null) },
             scopedContexts[pkg.name]
         )
+        scopedLogger.info(`Found ${commits.length} commits since last release`)
         newCommits[pkg.name] = commits
-        releaseTypes[pkg.name] = await releaseChain.getReleaseType(commits, scopedContexts[pkg.name])
+        const releaseType = await releaseChain.getReleaseType(commits, scopedContexts[pkg.name])
+        releaseTypes[pkg.name] = releaseType
+        if (releaseType === 'none') {
+            scopedLogger.info('There are no relevant changes, so no new version is released')
+            continue
+        }
+        const lastRelease = get(latestReleases, pkg.name, null)
+        const newVersion = getNewVersion(lastRelease, releaseType)
+        newVersions[pkg.name] = newVersion
+        if (lastRelease) {
+            scopedLogger.info(
+                `Release type was defined as "${releaseType}". So the next release version is ${versionToString(
+                    newVersion
+                )}`
+            )
+        } else {
+            scopedLogger.info(
+                `The next release version is ${versionToString(newVersion)}, since package has no previous releases`
+            )
+        }
     }
 }
