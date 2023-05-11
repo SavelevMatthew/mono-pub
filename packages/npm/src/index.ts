@@ -4,16 +4,20 @@ import { dirSync, setGracefulCleanup } from 'tmp'
 import fs from 'fs'
 import path from 'path'
 
-import type { MonoPubPlugin, MonoPubContext } from 'mono-pub'
+import type { MonoPubPlugin, MonoPubContext, BasePackageInfo } from 'mono-pub'
 
 type MonoPubNpmConfig = {
     envTokenKey: string
+    skipIfExist: boolean
+    distTag: string
 }
 
 const DEFAULT_NPM_REGISTRY = 'https://registry.npmjs.org'
 
 const DEFAULT_NPM_CONFIG: MonoPubNpmConfig = {
     envTokenKey: 'NPM_TOKEN',
+    skipIfExist: true,
+    distTag: 'latest',
 }
 
 class MonoPubNpm implements MonoPubPlugin {
@@ -21,7 +25,7 @@ class MonoPubNpm implements MonoPubPlugin {
     config = DEFAULT_NPM_CONFIG
     npmConfigFile = '.npmrc'
 
-    constructor(config?: MonoPubNpmConfig) {
+    constructor(config?: Partial<MonoPubNpmConfig>) {
         setGracefulCleanup()
         const tmpDir = dirSync()
         this.npmConfigFile = path.join(tmpDir.name, '.npmrc')
@@ -57,8 +61,32 @@ class MonoPubNpm implements MonoPubPlugin {
 
         return true
     }
+
+    async publish(packageInfo: BasePackageInfo, ctx: MonoPubContext): Promise<void> {
+        try {
+            const npmToken = ctx.env[this.config.envTokenKey]
+            const runDir = path.dirname(packageInfo.location)
+            await execa(
+                'npm',
+                ['publish', '--tag', this.config.distTag, '--userconfig', this.npmConfigFile, '--no-workspaces'],
+                { cwd: runDir, env: { NPM_TOKEN: npmToken } }
+            )
+        } catch (err) {
+            if (
+                !this.config.skipIfExist ||
+                !err ||
+                typeof err !== 'object' ||
+                !('stderr' in err) ||
+                typeof err.stderr !== 'string' ||
+                !err.stderr.includes('code E403') ||
+                !err.stderr.includes('You cannot publish over the previously published versions')
+            ) {
+                throw err
+            }
+        }
+    }
 }
 
-export default function npm(config?: MonoPubNpmConfig) {
+export default function npm(config?: Partial<MonoPubNpmConfig>) {
     return new MonoPubNpm(config)
 }
