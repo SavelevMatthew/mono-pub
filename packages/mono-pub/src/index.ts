@@ -129,8 +129,9 @@ export default async function publish(
             )
         }
     }
-    logger.log('Patching package.json files with new versions')
+
     for (const pkg of Object.values(packagesWithDeps)) {
+        scopedContexts[pkg.name].logger.log('Patching package.json with a new version criteria')
         await patchPackageDeps(pkg, newVersions)
     }
 

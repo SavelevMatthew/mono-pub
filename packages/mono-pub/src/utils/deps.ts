@@ -27,7 +27,7 @@ export async function getDependencies(
         const devDeps = get(json, 'devDependencies', {})
         const devDepsInfo: Array<DependencyInfo> = Object.keys(devDeps)
             .filter((dep) => packagesNames.includes(dep))
-            .map((dep) => ({ name: dep, type: 'devDep', value: deps[dep] }))
+            .map((dep) => ({ name: dep, type: 'devDep', value: devDeps[dep] }))
         pkg.dependsOn.push(...devDepsInfo)
     }
 
@@ -76,6 +76,7 @@ export async function patchPackageDeps(
     const file = await fsPromises.readFile(pkg.location)
     const packageJson = JSON.parse(file.toString())
     set(packageJson, 'version', versionToString(newVersions[pkg.name]))
+    console.log(pkg.dependsOn)
     for (const dep of pkg.dependsOn) {
         const depsGroup = dep.type === 'dep' ? 'dependencies' : 'devDependencies'
         set(packageJson, [depsGroup, dep.name], getVersionCriteria(dep.value, versionToString(newVersions[pkg.name])))
