@@ -26,11 +26,11 @@ export interface MonoPubPlugin {
 
     /**
      * Gets list of commits, which is relevant to package and happened after latest known release.
-     * @param pkgInfo {ReleasePackageInfo} Information about package containing "lastRelease" - latest released version
+     * @param packageInfo {ReleasePackageInfo} Information about package containing "lastRelease" - latest released version
      * @param ctx {MonoPubContext} Execution context. Used to obtain cwd, env and logger
      * @return {Array<string>} List of commits messages
      */
-    extractCommits?(pkgInfo: ReleasePackageInfo, ctx: MonoPubContext): Awaitable<Array<string>>
+    extractCommits?(packageInfo: ReleasePackageInfo, ctx: MonoPubContext): Awaitable<Array<string>>
 
     /**
      * Parses commits messages and determines release type ("major", "minor", "patch" or "none") based on them.
@@ -50,4 +50,19 @@ export interface MonoPubPlugin {
      * @return {void}
      */
     prepare?(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Awaitable<void>
+
+    /**
+     * Publishes package to a specific registry
+     * @param packageInfo {BasePackageInfo} Package info containing its name and location (absolute path to package.json)
+     * @param ctx {MonoPubContext} Execution context. Used to obtain cwd, env and logger
+     */
+    publish?(packageInfo: BasePackageInfo, ctx: MonoPubContext): Awaitable<void>
+
+    /**
+     * Runs side effects after successful publishing.
+     * Examples: mark HEAD with new tag, publish release notes, send webhooks.
+     * @param packageInfo
+     * @param ctx {MonoPubContext} Execution context. Used to obtain cwd, env and logger
+     */
+    postPublish?(packageInfo: any, ctx: MonoPubContext): Awaitable<void>
 }
