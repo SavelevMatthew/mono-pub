@@ -838,12 +838,31 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@mono-pub/npm@workspace:^, @mono-pub/npm@workspace:packages/npm":
+  version: 0.0.0-use.local
+  resolution: "@mono-pub/npm@workspace:packages/npm"
+  dependencies:
+    "@mono-pub/configs": "workspace:^"
+    "@rushstack/eslint-patch": ^1.2.0
+    "@types/tmp": ^0.2.3
+    eslint: ^8.39.0
+    execa: ^5
+    mono-pub: "workspace:^"
+    rollup: ^3.21.5
+    tmp: ^0.2.1
+    typescript: ^5.0.4
+  peerDependencies:
+    mono-pub: "*"
+  languageName: unknown
+  linkType: soft
+
 "@mono-pub/root@workspace:.":
   version: 0.0.0-use.local
   resolution: "@mono-pub/root@workspace:."
   dependencies:
     "@mono-pub/commit-analyzer": "workspace:^"
     "@mono-pub/git": "workspace:^"
+    "@mono-pub/npm": "workspace:^"
     "@types/jest": ^29.5.1
     execa: ^5
     jest: ^29.5.0
@@ -1232,6 +1251,13 @@ __metadata:
   version: 2.0.1
   resolution: "@types/stack-utils@npm:2.0.1"
   checksum: 205fdbe3326b7046d7eaf5e494d8084f2659086a266f3f9cf00bccc549c8e36e407f88168ad4383c8b07099957ad669f75f2532ed4bc70be2b037330f7bae019
+  languageName: node
+  linkType: hard
+
+"@types/tmp@npm:^0.2.3":
+  version: 0.2.3
+  resolution: "@types/tmp@npm:0.2.3"
+  checksum: 0ca45e99b3b3c6959d5c4f4555f73c8007db540cfb0fbbb9373217f9ab85e67eef75193f51a1d6564b0ee6c6f5ffa259d1034d7f7530a5b7ce80acb94cfc4daa
   languageName: node
   linkType: hard
 
@@ -5762,6 +5788,15 @@ __metadata:
     globalyzer: 0.1.0
     globrex: ^0.1.2
   checksum: aea5801eb6663ddf77ebb74900b8f8bd9dfcfc9b6a1cc8018cb7421590c00bf446109ff45e4b64a98e6c95ddb1255a337a5d488fb6311930e2a95334151ec9c6
+  languageName: node
+  linkType: hard
+
+"tmp@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "tmp@npm:0.2.1"
+  dependencies:
+    rimraf: ^3.0.0
+  checksum: 8b1214654182575124498c87ca986ac53dc76ff36e8f0e0b67139a8d221eaecfdec108c0e6ec54d76f49f1f72ab9325500b246f562b926f85bcdfca8bf35df9e
   languageName: node
   linkType: hard
 
