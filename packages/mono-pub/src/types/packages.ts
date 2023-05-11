@@ -28,3 +28,15 @@ export type ReleasePackageInfo = BasePackageInfo & {
 export type LastReleaseInfo = Record<string, LastRelease>
 
 export type ReleaseType = keyof PackageVersion | 'none'
+
+type PackageReleaseInfo = {
+    ldVersion: LastRelease
+    newVersion: PackageVersion
+    releaseType: ReleaseType
+}
+
+export type ReleasedPackageInfo = BasePackageInfo &
+    PackageReleaseInfo & {
+        commits: Array<string>
+        bumpedDeps: Array<BasePackageInfo & PackageReleaseInfo>
+    }

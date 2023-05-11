@@ -1,5 +1,5 @@
 import type { MonoPubContext } from './config'
-import type { BasePackageInfo, LastReleaseInfo, ReleasePackageInfo, ReleaseType } from './packages'
+import type { BasePackageInfo, LastReleaseInfo, ReleasePackageInfo, ReleaseType, ReleasedPackageInfo } from './packages'
 
 type Awaitable<T> = T | Promise<T>
 
@@ -61,8 +61,8 @@ export interface MonoPubPlugin {
     /**
      * Runs side effects after successful publishing.
      * Examples: mark HEAD with new tag, publish release notes, send webhooks.
-     * @param packageInfo
+     * @param packageInfo {ReleasedPackageInfo} information about released package
      * @param ctx {MonoPubContext} Execution context. Used to obtain cwd, env and logger
      */
-    postPublish?(packageInfo: any, ctx: MonoPubContext): Awaitable<void>
+    postPublish?(packageInfo: ReleasedPackageInfo, ctx: MonoPubContext): Awaitable<void>
 }
