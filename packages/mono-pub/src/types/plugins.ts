@@ -33,7 +33,7 @@ export interface MonoPubPlugin {
     extractCommits?(pkgInfo: ReleasePackageInfo, ctx: MonoPubContext): Awaitable<Array<string>>
 
     /**
-     * Parse commits messages and determines release type ("major", "minor", "patch" or "none") based on them.
+     * Parses commits messages and determines release type ("major", "minor", "patch" or "none") based on them.
      * @param commits {Array<string>} commits messages
      * @param isDepsChanged {boolean} indicates if some of packages deps will be changed in current release,
      * so it can be bumped even if no relevant commits found
@@ -41,4 +41,13 @@ export interface MonoPubPlugin {
      * @return {ReleaseType} type of release
      */
     getReleaseType?(commits: Array<string>, isDepsChanged: boolean, ctx: MonoPubContext): Awaitable<ReleaseType>
+
+    /**
+     * Prepares packages for publishing. Usually includes build process.
+     * NOTE: This step is triggered once for all packages, not for each package individually
+     * @param packages {Array<BasePackageInfo>} List of packages containing its name and location (absolute path to package.json)
+     * @param ctx {MonoPubContext} Execution context. Used to obtain cwd, env and logger
+     * @return {void}
+     */
+    prepare?(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Awaitable<void>
 }

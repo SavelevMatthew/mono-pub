@@ -12,6 +12,7 @@ type WithSetup = WithRequired<MonoPubPlugin, 'setup'>
 type WithGetLastRelease = WithRequired<MonoPubPlugin, 'getLastRelease'>
 type WithExtractor = WithRequired<MonoPubPlugin, 'extractCommits'>
 type WithAnalyzer = WithRequired<MonoPubPlugin, 'getReleaseType'>
+type WithPrepare = WithRequired<MonoPubPlugin, 'prepare'>
 
 export class CombinedPlugin implements MonoPubPlugin {
     name = 'CombinedPlugin'
@@ -20,6 +21,7 @@ export class CombinedPlugin implements MonoPubPlugin {
     extractor?: WithExtractor
     analyzer?: WithAnalyzer
     neededSetup: Array<WithSetup> = []
+    preparers: Array<WithPrepare> = []
 
     constructor(plugins: Array<MonoPubPlugin>) {
         this.allPlugins = plugins
@@ -56,6 +58,11 @@ export class CombinedPlugin implements MonoPubPlugin {
             if (plugin.getReleaseType) {
                 logger.log(this._getStepMessage('getReleaseType', plugin, this.analyzer))
                 this.analyzer = plugin as WithAnalyzer
+            }
+
+            if (plugin.prepare) {
+                logger.log(this._getStepMessage('prepare', plugin))
+                this.preparers.push(plugin as WithPrepare)
             }
         }
 
@@ -110,5 +117,12 @@ export class CombinedPlugin implements MonoPubPlugin {
         }
         ctx.logger.log(`Running "getReleaseType" of "${this.analyzer.name}" plugin`)
         return this.analyzer.getReleaseType(commits, isDepsChanged, ctx)
+    }
+
+    async prepare(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Promise<void> {
+        for (const plugin of this.preparers) {
+            ctx.logger.log(`Running "prepare" of "${plugin.name}" plugin`)
+            await plugin.prepare(packages, ctx)
+        }
     }
 }

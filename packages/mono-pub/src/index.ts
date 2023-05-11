@@ -129,4 +129,5 @@ export default async function publish(
             )
         }
     }
+    await releaseChain.prepare(packages, context)
 }
