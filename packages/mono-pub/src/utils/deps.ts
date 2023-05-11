@@ -76,10 +76,11 @@ export async function patchPackageDeps(
     const file = await fsPromises.readFile(pkg.location)
     const packageJson = JSON.parse(file.toString())
     set(packageJson, 'version', versionToString(newVersions[pkg.name]))
-    console.log(pkg.dependsOn)
+
     for (const dep of pkg.dependsOn) {
         const depsGroup = dep.type === 'dep' ? 'dependencies' : 'devDependencies'
         set(packageJson, [depsGroup, dep.name], getVersionCriteria(dep.value, versionToString(newVersions[pkg.name])))
     }
+
     await fsPromises.writeFile(pkg.location, JSON.stringify(packageJson, null, 2))
 }
