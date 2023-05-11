@@ -1,6 +1,6 @@
 import { name } from '../package.json'
 import execa from 'execa'
-import tmp from 'tmp'
+import { dirSync, setGracefulCleanup } from 'tmp'
 import fs from 'fs'
 import path from 'path'
 
@@ -22,8 +22,8 @@ class MonoPubNpm implements MonoPubPlugin {
     npmConfigFile = '.npmrc'
 
     constructor(config?: MonoPubNpmConfig) {
-        tmp.setGracefulCleanup()
-        const tmpDir = tmp.dirSync()
+        setGracefulCleanup()
+        const tmpDir = dirSync()
         this.npmConfigFile = path.join(tmpDir.name, '.npmrc')
         this.config = { ...DEFAULT_NPM_CONFIG, ...config }
     }
