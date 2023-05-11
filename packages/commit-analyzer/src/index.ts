@@ -22,8 +22,9 @@ class MonoPubCommitAnalyzer implements MonoPubPlugin {
         this.parserOptions.noteKeywords = this.config.breakingNoteKeywords
     }
 
-    getReleaseType(commits: Array<string>): ReleaseType {
-        let releaseType: ReleaseType = 'none'
+    getReleaseType(commits: Array<string>, isDepsChanged: boolean): ReleaseType {
+        let releaseType: ReleaseType = isDepsChanged ? this.config.depsBumpReleaseType : 'none'
+
         for (const commit of commits) {
             const parsedCommit = syncParser(commit, this.parserOptions)
             if (
@@ -52,6 +53,6 @@ class MonoPubCommitAnalyzer implements MonoPubPlugin {
     }
 }
 
-export default function commitAnalyzer(config?: CommitAnalyzerConfig) {
+export default function commitAnalyzer(config?: Partial<CommitAnalyzerConfig>) {
     return new MonoPubCommitAnalyzer(config)
 }
