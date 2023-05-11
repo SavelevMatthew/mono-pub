@@ -1,7 +1,9 @@
 import { promises as fsPromises } from 'fs'
 import get from 'lodash/get'
+import set from 'lodash/set'
+import { versionToString, getVersionCriteria } from '@/utils/versions'
 
-import type { BasePackageInfo, DependenciesPackageInfo, DependencyInfo } from '@/types'
+import type { BasePackageInfo, DependenciesPackageInfo, DependencyInfo, PackageVersion } from '@/types'
 
 export async function getDependencies(
     packages: Array<BasePackageInfo>
@@ -65,4 +67,18 @@ export function getReleaseOrder(packages: Record<string, DependenciesPackageInfo
     }
 
     return order
+}
+
+export async function patchPackageDeps(
+    pkg: DependenciesPackageInfo,
+    newVersions: Record<string, PackageVersion>
+): Promise<void> {
+    const file = await fsPromises.readFile(pkg.location)
+    const packageJson = JSON.parse(file.toString())
+    set(packageJson, 'version', versionToString(newVersions[pkg.name]))
+    for (const dep of pkg.dependsOn) {
+        const depsGroup = dep.type === 'dep' ? 'dependencies' : 'devDependencies'
+        set(packageJson, [depsGroup, dep.name], getVersionCriteria(dep.value, versionToString(newVersions[pkg.name])))
+    }
+    await fsPromises.writeFile(pkg.location, JSON.stringify(packageJson, null, 2))
 }

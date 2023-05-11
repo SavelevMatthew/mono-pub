@@ -2,7 +2,8 @@ import get from 'lodash/get'
 import { getAllPackages } from '@/utils/path'
 import getLogger from '@/logger'
 import { CombinedPlugin } from '@/utils/plugins'
-import { getDependencies, getReleaseOrder } from '@/utils/deps'
+import { getDependencies, getReleaseOrder, patchPackageDeps } from '@/utils/deps'
+import { getNewVersion, versionToString } from '@/utils/versions'
 
 import type {
     MonoPubPlugin,
@@ -12,7 +13,6 @@ import type {
     ReleaseType,
     PackageVersion,
 } from '@/types'
-import { getNewVersion, versionToString } from '@/utils/versions'
 
 export type * from '@/types'
 
@@ -129,5 +129,10 @@ export default async function publish(
             )
         }
     }
+    logger.log('Patching package.json files with new versions')
+    for (const pkg of Object.values(packagesWithDeps)) {
+        await patchPackageDeps(pkg, newVersions)
+    }
+
     await releaseChain.prepare(packages, context)
 }
