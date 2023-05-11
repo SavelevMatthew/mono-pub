@@ -3,11 +3,16 @@ import get from 'lodash/get'
 
 import type { BasePackageInfo, DependenciesPackageInfo, DependencyInfo } from '@/types'
 
-export async function getDependencies(packages: Array<BasePackageInfo>): Promise<Array<DependenciesPackageInfo>> {
+export async function getDependencies(
+    packages: Array<BasePackageInfo>
+): Promise<Record<string, DependenciesPackageInfo>> {
     const packagesNames = packages.map((pkg) => pkg.name)
-    const result: Array<DependenciesPackageInfo> = packages.map((pkg) => ({ ...pkg, dependsOn: [] }))
+    const result: Record<string, DependenciesPackageInfo> = Object.assign(
+        {},
+        ...packages.map((pkg) => ({ [pkg.name]: { ...pkg, dependsOn: [] } }))
+    )
 
-    for (const pkg of result) {
+    for (const pkg of Object.values(result)) {
         const content = await fsPromises.readFile(pkg.location)
         const json = JSON.parse(content.toString())
 
@@ -27,11 +32,11 @@ export async function getDependencies(packages: Array<BasePackageInfo>): Promise
     return result
 }
 
-export function getReleaseOrder(packages: Array<DependenciesPackageInfo>): Array<string> {
+export function getReleaseOrder(packages: Record<string, DependenciesPackageInfo>): Array<string> {
     const order: Array<string> = []
 
     const deps = new Map<string, Array<string>>()
-    for (const pkg of packages) {
+    for (const pkg of Object.values(packages)) {
         deps.set(
             pkg.name,
             pkg.dependsOn.map((dep) => dep.name)

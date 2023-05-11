@@ -35,8 +35,10 @@ export interface MonoPubPlugin {
     /**
      * Parse commits messages and determines release type ("major", "minor", "patch" or "none") based on them.
      * @param commits {Array<string>} commits messages
+     * @param isDepsChanged {boolean} indicates if some of packages deps will be changed in current release,
+     * so it can be bumped even if no relevant commits found
      * @param ctx {MonoPubContext} Execution context. Used to obtain cwd, env and logger
      * @return {ReleaseType} type of release
      */
-    getReleaseType?(commits: Array<string>, ctx: MonoPubContext): Awaitable<ReleaseType>
+    getReleaseType?(commits: Array<string>, isDepsChanged: boolean, ctx: MonoPubContext): Awaitable<ReleaseType>
 }

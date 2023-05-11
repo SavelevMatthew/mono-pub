@@ -104,11 +104,11 @@ export class CombinedPlugin implements MonoPubPlugin {
         return this.extractor.extractCommits(pkgInfo, ctx)
     }
 
-    async getReleaseType(commits: Array<string>, ctx: MonoPubContext): Promise<ReleaseType> {
+    async getReleaseType(commits: Array<string>, isDepsChanged: boolean, ctx: MonoPubContext): Promise<ReleaseType> {
         if (!this.analyzer) {
             throw new Error('No analyzer found. You should run setup step before this')
         }
         ctx.logger.log(`Running "getReleaseType" of "${this.analyzer.name}" plugin`)
-        return this.analyzer.getReleaseType(commits, ctx)
+        return this.analyzer.getReleaseType(commits, isDepsChanged, ctx)
     }
 }

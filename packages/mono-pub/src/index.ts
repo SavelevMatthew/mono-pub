@@ -38,6 +38,7 @@ export default async function publish(
 
     logger.info('Starting releasing process...')
     const packages = await getAllPackages(paths, context.cwd)
+    const packagesInfo = Object.assign({}, ...packages.map((pkg) => ({ [pkg.name]: pkg })))
     if (!packages.length) {
         logger.success('No matching packages found. Exiting...')
         return
@@ -56,7 +57,7 @@ export default async function publish(
         `Found ${packages.length} packages to release: [${packages.map((pkg) => `"${pkg.name}"`).join(', ')}]`
     )
     logger.log('Calculating release order based on packages dependencies and devDependencies...')
-    let packagesWithDeps: Array<DependenciesPackageInfo> = []
+    let packagesWithDeps: Record<string, DependenciesPackageInfo> = {}
     let releaseOrder: Array<string> = []
 
     try {
@@ -98,23 +99,24 @@ export default async function publish(
     const releaseTypes: Record<string, ReleaseType> = {}
     const newVersions: Record<string, PackageVersion> = {}
 
-    for (const pkg of packages) {
-        const scopedLogger = scopedContexts[pkg.name].logger
+    for (const pkgName of releaseOrder) {
+        const scopedLogger = scopedContexts[pkgName].logger
         const commits = await releaseChain.extractCommits(
-            { ...pkg, lastRelease: get(latestReleases, pkg.name, null) },
-            scopedContexts[pkg.name]
+            { ...packagesInfo[pkgName], lastRelease: get(latestReleases, pkgName, null) },
+            scopedContexts[pkgName]
         )
         scopedLogger.info(`Found ${commits.length} commits since last release`)
-        newCommits[pkg.name] = commits
-        const releaseType = await releaseChain.getReleaseType(commits, scopedContexts[pkg.name])
-        releaseTypes[pkg.name] = releaseType
+        newCommits[pkgName] = commits
+        const isDepsChanged = packagesWithDeps[pkgName].dependsOn.some((dep) => releaseTypes[dep.name] !== 'none')
+        const releaseType = await releaseChain.getReleaseType(commits, isDepsChanged, scopedContexts[pkgName])
+        releaseTypes[pkgName] = releaseType
         if (releaseType === 'none') {
             scopedLogger.info('There are no relevant changes, so no new version is released')
             continue
         }
-        const lastRelease = get(latestReleases, pkg.name, null)
+        const lastRelease = get(latestReleases, pkgName, null)
         const newVersion = getNewVersion(lastRelease, releaseType)
-        newVersions[pkg.name] = newVersion
+        newVersions[pkgName] = newVersion
         if (lastRelease) {
             scopedLogger.info(
                 `Release type was defined as "${releaseType}". So the next release version is ${versionToString(
