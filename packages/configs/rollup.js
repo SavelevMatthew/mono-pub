@@ -57,7 +57,7 @@ function filePipe(input, cjs, esm, opts = {}) {
  * @param {{cleanTypes?: boolean, typesDir?: string}} opts - object with options. If cleanTypes is specified, will clean dist/dts dir
  * @return {import('rollup').RollupOptions}
  */
-function typePipe(input, output, opts) {
+function typePipe(input, output, opts = {}) {
     return {
         input,
         output: [
