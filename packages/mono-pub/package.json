@@ -22,8 +22,12 @@
   ],
   "typesVersions": {
     "*": {
-      ".": ["./dist/index.d.ts"],
-      "./utils": ["./dist/utils.d.ts"]
+      ".": [
+        "./dist/index.d.ts"
+      ],
+      "./utils": [
+        "./dist/utils.d.ts"
+      ]
     }
   },
   "exports": {
