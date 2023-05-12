@@ -20,9 +20,24 @@
   "files": [
     "dist"
   ],
-  "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      ".": ["./dist/index.d.ts"],
+      "./utils": ["./dist/utils.d.ts"]
+    }
+  },
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./utils": {
+      "require": "./dist/utils.cjs",
+      "import": "./dist/utils.mjs",
+      "types": "./dist/utils.d.ts"
+    }
+  },
   "devDependencies": {
     "@mono-pub/configs": "workspace:^",
     "@rushstack/eslint-patch": "^1.2.0",
