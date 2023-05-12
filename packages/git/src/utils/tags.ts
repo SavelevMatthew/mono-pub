@@ -109,3 +109,15 @@ export function getTagFromVersion(tagFormat: string, pkgName: string, version: P
     const versionPart = `${version.major}.${version.minor}.${version.patch}`
     return tagFormat.replace(NAME_PLACEHOLDER, pkgName).replace(VERSION_PLACEHOLDER, versionPart)
 }
+
+function _versionToString(version: PackageVersion): string {
+    return `${version.major}.${version.minor}.${version.patch}`
+}
+
+export async function pushNewVersionTag(tagFormat: string, pkgName: string, newVersion: PackageVersion, cwd: string) {
+    const newTag = tagFormat
+        .replace(NAME_PLACEHOLDER, pkgName)
+        .replace(VERSION_PLACEHOLDER, _versionToString(newVersion))
+    await execa('git', ['tag', newTag], { cwd })
+    await execa('git', ['push', 'origin', newTag], { cwd })
+}

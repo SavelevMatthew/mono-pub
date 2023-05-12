@@ -30,7 +30,7 @@ export type LatestPackagesReleases = Record<string, LatestReleasedVersion>
 export type ReleaseType = keyof PackageVersion | 'none'
 
 type PackageReleaseInfo = {
-    ldVersion: LatestReleasedVersion
+    oldVersion: LatestReleasedVersion
     newVersion: PackageVersion
     releaseType: ReleaseType
 }

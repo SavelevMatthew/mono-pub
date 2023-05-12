@@ -7,14 +7,17 @@ import {
     getMergedTags,
     isValidTagFormat,
     getTagFromVersion,
+    pushNewVersionTag,
 } from '@/utils/tags'
 import { getAllPackageCommits } from '@/utils/commits'
+import { getOriginUrl } from '@/utils/branches'
 import type {
     BasePackageInfo,
     LatestPackagesReleases,
     MonoPubContext,
     MonoPubPlugin,
     PackageInfoWithLatestRelease,
+    ReleasedPackageInfo,
 } from 'mono-pub'
 
 class MonoPubGit implements MonoPubPlugin {
@@ -32,6 +35,11 @@ class MonoPubGit implements MonoPubPlugin {
         }
     }
 
+    async setup(ctx: MonoPubContext): Promise<boolean> {
+        const origin = await getOriginUrl(ctx.cwd)
+        return !!origin
+    }
+
     async getLastRelease(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Promise<LatestPackagesReleases> {
         const tags = await getMergedTags(ctx.cwd)
         const packageNames = packages.map((pkg) => pkg.name)
@@ -42,6 +50,10 @@ class MonoPubGit implements MonoPubPlugin {
         const latestRelease = pkgInfo.latestRelease
         const latestTag = latestRelease ? getTagFromVersion(this.tagFormat, pkgInfo.name, latestRelease) : null
         return await getAllPackageCommits(pkgInfo, latestTag, ctx.cwd)
+    }
+
+    async postPublish(packageInfo: ReleasedPackageInfo, ctx: MonoPubContext): Promise<void> {
+        await pushNewVersionTag(this.tagFormat, packageInfo.name, packageInfo.newVersion, ctx.cwd)
     }
 }
 
