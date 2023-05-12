@@ -9,7 +9,7 @@ export type DependencyInfo = {
     value: string
 }
 
-export type DependenciesPackageInfo = BasePackageInfo & {
+export type PackageInfoWithDependencies = BasePackageInfo & {
     dependsOn: Array<DependencyInfo>
 }
 
@@ -19,18 +19,18 @@ export type PackageVersion = {
     patch: number
 }
 
-export type LastRelease = PackageVersion | null
+export type LatestReleasedVersion = PackageVersion | null
 
-export type ReleasePackageInfo = BasePackageInfo & {
-    lastRelease: LastRelease
+export type PackageInfoWithLatestRelease = BasePackageInfo & {
+    latestRelease: LatestReleasedVersion
 }
 
-export type LastReleaseInfo = Record<string, LastRelease>
+export type LatestPackagesReleases = Record<string, LatestReleasedVersion>
 
 export type ReleaseType = keyof PackageVersion | 'none'
 
 type PackageReleaseInfo = {
-    ldVersion: LastRelease
+    ldVersion: LatestReleasedVersion
     newVersion: PackageVersion
     releaseType: ReleaseType
 }

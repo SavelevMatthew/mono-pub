@@ -3,13 +3,13 @@ import get from 'lodash/get'
 import set from 'lodash/set'
 import { versionToString, getVersionCriteria } from '@/utils/versions'
 
-import type { BasePackageInfo, DependenciesPackageInfo, DependencyInfo, PackageVersion } from '@/types'
+import type { BasePackageInfo, PackageInfoWithDependencies, DependencyInfo, PackageVersion } from '@/types'
 
 export async function getDependencies(
     packages: Array<BasePackageInfo>
-): Promise<Record<string, DependenciesPackageInfo>> {
+): Promise<Record<string, PackageInfoWithDependencies>> {
     const packagesNames = packages.map((pkg) => pkg.name)
-    const result: Record<string, DependenciesPackageInfo> = Object.assign(
+    const result: Record<string, PackageInfoWithDependencies> = Object.assign(
         {},
         ...packages.map((pkg) => ({ [pkg.name]: { ...pkg, dependsOn: [] } }))
     )
@@ -34,7 +34,7 @@ export async function getDependencies(
     return result
 }
 
-export function getReleaseOrder(packages: Record<string, DependenciesPackageInfo>): Array<string> {
+export function getReleaseOrder(packages: Record<string, PackageInfoWithDependencies>): Array<string> {
     const order: Array<string> = []
 
     const deps = new Map<string, Array<string>>()
@@ -70,7 +70,7 @@ export function getReleaseOrder(packages: Record<string, DependenciesPackageInfo
 }
 
 export async function patchPackageDeps(
-    pkg: DependenciesPackageInfo,
+    pkg: PackageInfoWithDependencies,
     newVersions: Record<string, PackageVersion>
 ): Promise<void> {
     const file = await fsPromises.readFile(pkg.location)

@@ -1,4 +1,4 @@
-import type { LastRelease, ReleaseType, PackageVersion } from '@/types'
+import type { LatestReleasedVersion, ReleaseType, PackageVersion } from '@/types'
 
 const PATCH_REGEX = /\d+.\d+.x/i
 const MINOR_REGEX = /(?<!\d+.)\d+.x/i
@@ -7,15 +7,18 @@ export function versionToString(version: PackageVersion): string {
     return `${version.major}.${version.minor}.${version.patch}`
 }
 
-export function getNewVersion(lastRelease: LastRelease, releaseType: Exclude<ReleaseType, 'none'>): PackageVersion {
-    if (!lastRelease) {
+export function getNewVersion(
+    latestRelease: LatestReleasedVersion,
+    releaseType: Exclude<ReleaseType, 'none'>
+): PackageVersion {
+    if (!latestRelease) {
         return { major: 1, minor: 0, patch: 0 }
     } else if (releaseType === 'major') {
-        return { major: lastRelease.major + 1, minor: 0, patch: 0 }
+        return { major: latestRelease.major + 1, minor: 0, patch: 0 }
     } else if (releaseType === 'minor') {
-        return { major: lastRelease.major, minor: lastRelease.minor + 1, patch: 0 }
+        return { major: latestRelease.major, minor: latestRelease.minor + 1, patch: 0 }
     } else {
-        return { ...lastRelease, patch: lastRelease.patch + 1 }
+        return { ...latestRelease, patch: latestRelease.patch + 1 }
     }
 }
 

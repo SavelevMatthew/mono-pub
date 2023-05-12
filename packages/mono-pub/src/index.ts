@@ -9,7 +9,7 @@ import type {
     MonoPubPlugin,
     MonoPubContext,
     MonoPubOptions,
-    DependenciesPackageInfo,
+    PackageInfoWithDependencies,
     ReleaseType,
     PackageVersion,
 } from '@/types'
@@ -57,7 +57,7 @@ export default async function publish(
         `Found ${packages.length} packages to release: [${packages.map((pkg) => `"${pkg.name}"`).join(', ')}]`
     )
     logger.log('Calculating release order based on packages dependencies and devDependencies...')
-    let packagesWithDeps: Record<string, DependenciesPackageInfo> = {}
+    let packagesWithDeps: Record<string, PackageInfoWithDependencies> = {}
     let releaseOrder: Array<string> = []
 
     try {
@@ -102,7 +102,7 @@ export default async function publish(
     for (const pkgName of releaseOrder) {
         const scopedLogger = scopedContexts[pkgName].logger
         const commits = await releaseChain.extractCommits(
-            { ...packagesInfo[pkgName], lastRelease: get(latestReleases, pkgName, null) },
+            { ...packagesInfo[pkgName], latestRelease: get(latestReleases, pkgName, null) },
             scopedContexts[pkgName]
         )
         scopedLogger.info(`Found ${commits.length} commits since last release`)
@@ -114,10 +114,10 @@ export default async function publish(
             scopedLogger.info('There are no relevant changes, so no new version is released')
             continue
         }
-        const lastRelease = get(latestReleases, pkgName, null)
-        const newVersion = getNewVersion(lastRelease, releaseType)
+        const latestRelease = get(latestReleases, pkgName, null)
+        const newVersion = getNewVersion(latestRelease, releaseType)
         newVersions[pkgName] = newVersion
-        if (lastRelease) {
+        if (latestRelease) {
             scopedLogger.info(
                 `Release type was defined as "${releaseType}". So the next release version is ${versionToString(
                     newVersion

@@ -1,6 +1,6 @@
 import execa from 'execa'
 import type { LatestRelease } from '@/types'
-import type { PackageVersion, LastReleaseInfo } from 'mono-pub'
+import type { PackageVersion, LatestPackagesReleases } from 'mono-pub'
 
 export const VERSION_PLACEHOLDER = '{version}'
 export const NAME_PLACEHOLDER = '{name}'
@@ -85,9 +85,9 @@ export function getLatestReleases(
     tags: ReadonlyArray<string>,
     packageNames: ReadonlyArray<string>,
     tagFormat?: string
-): LastReleaseInfo {
+): LatestPackagesReleases {
     const tagRegex = getTagRegex(packageNames, tagFormat)
-    const result: LastReleaseInfo = Object.assign({}, ...packageNames.map((pkg) => ({ [pkg]: null })))
+    const result: LatestPackagesReleases = Object.assign({}, ...packageNames.map((pkg) => ({ [pkg]: null })))
 
     for (const tag of tags) {
         const match = tag.match(tagRegex)

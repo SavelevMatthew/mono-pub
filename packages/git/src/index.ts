@@ -9,7 +9,13 @@ import {
     getTagFromVersion,
 } from '@/utils/tags'
 import { getAllPackageCommits } from '@/utils/commits'
-import type { BasePackageInfo, LastReleaseInfo, MonoPubContext, MonoPubPlugin, ReleasePackageInfo } from 'mono-pub'
+import type {
+    BasePackageInfo,
+    LatestPackagesReleases,
+    MonoPubContext,
+    MonoPubPlugin,
+    PackageInfoWithLatestRelease,
+} from 'mono-pub'
 
 class MonoPubGit implements MonoPubPlugin {
     name = name
@@ -26,15 +32,15 @@ class MonoPubGit implements MonoPubPlugin {
         }
     }
 
-    async getLastRelease(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Promise<LastReleaseInfo> {
+    async getLastRelease(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Promise<LatestPackagesReleases> {
         const tags = await getMergedTags(ctx.cwd)
         const packageNames = packages.map((pkg) => pkg.name)
         return getLatestReleases(tags, packageNames, this.tagFormat)
     }
 
-    async extractCommits(pkgInfo: ReleasePackageInfo, ctx: MonoPubContext): Promise<Array<string>> {
-        const lastRelease = pkgInfo.lastRelease
-        const latestTag = lastRelease ? getTagFromVersion(this.tagFormat, pkgInfo.name, lastRelease) : null
+    async extractCommits(pkgInfo: PackageInfoWithLatestRelease, ctx: MonoPubContext): Promise<Array<string>> {
+        const latestRelease = pkgInfo.latestRelease
+        const latestTag = latestRelease ? getTagFromVersion(this.tagFormat, pkgInfo.name, latestRelease) : null
         return await getAllPackageCommits(pkgInfo, latestTag, ctx.cwd)
     }
 }

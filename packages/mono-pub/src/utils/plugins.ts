@@ -2,8 +2,8 @@ import type {
     MonoPubPlugin,
     MonoPubContext,
     BasePackageInfo,
-    LastReleaseInfo,
-    ReleasePackageInfo,
+    LatestPackagesReleases,
+    PackageInfoWithLatestRelease,
     ReleaseType,
 } from '@/types'
 
@@ -95,7 +95,7 @@ export class CombinedPlugin implements MonoPubPlugin {
         return true
     }
 
-    async getLastRelease(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Promise<LastReleaseInfo> {
+    async getLastRelease(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Promise<LatestPackagesReleases> {
         if (!this.versionGetter) {
             throw new Error('No versionGetter found. You should run setup step before this')
         }
@@ -103,7 +103,7 @@ export class CombinedPlugin implements MonoPubPlugin {
         return this.versionGetter.getLastRelease(packages, ctx)
     }
 
-    async extractCommits(pkgInfo: ReleasePackageInfo, ctx: MonoPubContext): Promise<Array<string>> {
+    async extractCommits(pkgInfo: PackageInfoWithLatestRelease, ctx: MonoPubContext): Promise<Array<string>> {
         if (!this.extractor) {
             throw new Error('No extractor found. You should run setup step before this')
         }

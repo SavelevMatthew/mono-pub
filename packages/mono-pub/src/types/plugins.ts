@@ -1,5 +1,11 @@
 import type { MonoPubContext } from './config'
-import type { BasePackageInfo, LastReleaseInfo, ReleasePackageInfo, ReleaseType, ReleasedPackageInfo } from './packages'
+import type {
+    BasePackageInfo,
+    LatestPackagesReleases,
+    PackageInfoWithLatestRelease,
+    ReleaseType,
+    ReleasedPackageInfo,
+} from './packages'
 
 type Awaitable<T> = T | Promise<T>
 
@@ -20,17 +26,17 @@ export interface MonoPubPlugin {
      * Scans repo for latest release (usually using tags) and figures out latest release version of each package
      * @param packages {Array<BasePackageInfo>} List of packages containing its name and location (absolute path to package.json)
      * @param ctx {MonoPubContext} Execution context. Used to obtain cwd, env and logger
-     * @return {Awaitable<LastReleaseInfo>} Object with packages names as keys and PackageVersion or null as values
+     * @return {Awaitable<LatestPackagesReleases>} Object with packages names as keys and PackageVersion or null as values
      */
-    getLastRelease?(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Awaitable<LastReleaseInfo>
+    getLastRelease?(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Awaitable<LatestPackagesReleases>
 
     /**
      * Gets list of commits, which is relevant to package and happened after latest known release.
-     * @param packageInfo {ReleasePackageInfo} Information about package containing "lastRelease" - latest released version
+     * @param packageInfo {PackageInfoWithLatestRelease} Information about package containing "latestRelease" - latest released version
      * @param ctx {MonoPubContext} Execution context. Used to obtain cwd, env and logger
      * @return {Array<string>} List of commits messages
      */
-    extractCommits?(packageInfo: ReleasePackageInfo, ctx: MonoPubContext): Awaitable<Array<string>>
+    extractCommits?(packageInfo: PackageInfoWithLatestRelease, ctx: MonoPubContext): Awaitable<Array<string>>
 
     /**
      * Parses commits messages and determines release type ("major", "minor", "patch" or "none") based on them.
