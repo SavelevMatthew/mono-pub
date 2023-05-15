@@ -3,7 +3,7 @@ import get from 'lodash/get'
 import { name } from '../package.json'
 import { extractRepoFromOriginUrl, getPullFromCommit } from '@/utils'
 import { getOriginUrl, getTagFromVersion, getAllPackageCommits, getAllPackageCommitsInRange } from '@mono-pub/git/utils'
-import type { MonoPubPlugin, MonoPubContext, PackageInfoWithLatestRelease } from 'mono-pub'
+import type { MonoPubPlugin, MonoPubContext, PackageInfoWithLatestRelease, CommitInfo } from 'mono-pub'
 import type { RepoInfo } from '@/utils'
 import type { Octokit as OctoType } from '@octokit/rest'
 
@@ -56,7 +56,7 @@ class MonoPubGithub implements MonoPubPlugin {
         return true
     }
 
-    async extractCommits(packageInfo: PackageInfoWithLatestRelease, ctx: MonoPubContext): Promise<Array<string>> {
+    async extractCommits(packageInfo: PackageInfoWithLatestRelease, ctx: MonoPubContext): Promise<Array<CommitInfo>> {
         if (!this.#octokit) {
             ctx.logger.error('Setup step was not successful!')
             throw new Error('No octokit initialized. Probably because setup step was not run correctly')
@@ -65,11 +65,11 @@ class MonoPubGithub implements MonoPubPlugin {
         const latestTag = latestRelease
             ? getTagFromVersion(this.config.tagFormat, packageInfo.name, latestRelease)
             : null
-        const originalCommits = await getAllPackageCommits(packageInfo, latestTag, ctx.cwd)
+        const originalCommits = await getAllPackageCommits({ pkgInfo: packageInfo, fromTag: latestTag, cwd: ctx.cwd })
         if (!this.config.extractCommitsFromSquashed) {
             return originalCommits
         }
-        const commits: Array<string> = []
+        const commits: Array<CommitInfo> = []
         for (const commit of originalCommits) {
             const prNumber = getPullFromCommit(commit)
             if (prNumber === null) {
@@ -84,9 +84,15 @@ class MonoPubGithub implements MonoPubPlugin {
             const headSha = get(pr, ['data', 'head', 'sha'], null)
             if (pr.status !== 200 || !baseSha || !headSha) {
                 ctx.logger.error('Could not extract PR info from commit header')
+                ctx.logger.error(pr.data)
                 throw new Error('Could not extract PR info from commit header')
             }
-            const prCommits = await getAllPackageCommitsInRange(packageInfo, baseSha, headSha, ctx.cwd)
+            const prCommits = await getAllPackageCommitsInRange({
+                pkgInfo: packageInfo,
+                cwd: ctx.cwd,
+                from: baseSha,
+                to: headSha,
+            })
             commits.push(...prCommits)
         }
 

@@ -1,3 +1,5 @@
+import type { CommitInfo } from './commits'
+
 export type BasePackageInfo = {
     name: string
     location: string
@@ -37,6 +39,6 @@ type PackageReleaseInfo = {
 
 export type ReleasedPackageInfo = BasePackageInfo &
     PackageReleaseInfo & {
-        commits: Array<string>
+        commits: Array<CommitInfo>
         bumpedDeps: Array<BasePackageInfo & PackageReleaseInfo>
     }

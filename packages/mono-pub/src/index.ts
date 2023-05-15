@@ -12,6 +12,7 @@ import type {
     PackageInfoWithDependencies,
     ReleaseType,
     PackageVersion,
+    CommitInfo,
 } from '@/types'
 
 export type * from '@/types'
@@ -95,7 +96,7 @@ export default async function publish(
         }
     }
 
-    const newCommits: Record<string, Array<string>> = {}
+    const newCommits: Record<string, Array<CommitInfo>> = {}
     const releaseTypes: Record<string, ReleaseType> = {}
     const newVersions: Record<string, PackageVersion> = {}
 

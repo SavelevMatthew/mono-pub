@@ -1,4 +1,5 @@
 import type { MonoPubContext } from './config'
+import type { CommitInfo } from './commits'
 import type {
     BasePackageInfo,
     LatestPackagesReleases,
@@ -36,7 +37,7 @@ export interface MonoPubPlugin {
      * @param ctx {MonoPubContext} Execution context. Used to obtain cwd, env and logger
      * @return {Array<string>} List of commits messages
      */
-    extractCommits?(packageInfo: PackageInfoWithLatestRelease, ctx: MonoPubContext): Awaitable<Array<string>>
+    extractCommits?(packageInfo: PackageInfoWithLatestRelease, ctx: MonoPubContext): Awaitable<Array<CommitInfo>>
 
     /**
      * Parses commits messages and determines release type ("major", "minor", "patch" or "none") based on them.
@@ -46,7 +47,7 @@ export interface MonoPubPlugin {
      * @param ctx {MonoPubContext} Execution context. Used to obtain cwd, env and logger
      * @return {ReleaseType} type of release
      */
-    getReleaseType?(commits: Array<string>, isDepsChanged: boolean, ctx: MonoPubContext): Awaitable<ReleaseType>
+    getReleaseType?(commits: Array<CommitInfo>, isDepsChanged: boolean, ctx: MonoPubContext): Awaitable<ReleaseType>
 
     /**
      * Prepares packages for publishing. Usually includes build process.

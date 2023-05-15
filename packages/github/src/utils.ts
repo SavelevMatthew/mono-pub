@@ -1,3 +1,5 @@
+import type { CommitInfo } from 'mono-pub'
+
 const REPO_URL_REGEXP = /^.+[/:](?<owner>.+)\/(?<repo>.+).git$/
 const PULL_HEADER_REGEXP = /\(#(?<pr>\d+)\)$/
 
@@ -18,8 +20,8 @@ export function extractRepoFromOriginUrl(repoUrl: string): RepoInfo | null {
     }
 }
 
-export function getPullFromCommit(commit: string): number | null {
-    const header = commit.split('\n')[0].trim()
+export function getPullFromCommit(commit: CommitInfo): number | null {
+    const header = commit.message.split('\n')[0].trim()
     const match = header.match(PULL_HEADER_REGEXP)
     if (match && match.groups) {
         return parseInt(match.groups['pr'])
