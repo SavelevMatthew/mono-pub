@@ -37,7 +37,12 @@ class MonoPubGit implements MonoPubPlugin {
 
     async setup(ctx: MonoPubContext): Promise<boolean> {
         const origin = await getOriginUrl(ctx.cwd)
-        return !!origin
+        if (!origin) {
+            ctx.logger.log('Current repo has no origin, which is required for pushing new tag after release')
+            return false
+        }
+
+        return true
     }
 
     async getLastRelease(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Promise<LatestPackagesReleases> {
