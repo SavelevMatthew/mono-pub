@@ -107,8 +107,7 @@ export function getLatestReleases(
 }
 
 export function getTagFromVersion(tagFormat: string, pkgName: string, version: PackageVersion) {
-    const versionPart = `${version.major}.${version.minor}.${version.patch}`
-    return tagFormat.replace(NAME_PLACEHOLDER, pkgName).replace(VERSION_PLACEHOLDER, versionPart)
+    return tagFormat.replace(NAME_PLACEHOLDER, pkgName).replace(VERSION_PLACEHOLDER, versionToString(version))
 }
 
 export async function pushNewVersionTag(tagFormat: string, pkgName: string, newVersion: PackageVersion, cwd: string) {
