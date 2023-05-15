@@ -9,7 +9,7 @@
   },
   "scripts": {
     "lint": "eslint src && prettier --check src",
-    "builds": "rollup -c"
+    "build": "rollup -c"
   },
   "author": {
     "name": "Matthew Savelev",
