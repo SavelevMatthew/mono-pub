@@ -4,7 +4,7 @@ import { DEFAULT_CONFIG } from '@/config'
 import { getMostImportantType } from '@/utils'
 import type { CommitAnalyzerConfig } from '@/config'
 import type { Options as ParserOptions } from 'conventional-commits-parser'
-import type { MonoPubPlugin, ReleaseType } from 'mono-pub'
+import type { CommitInfo, MonoPubPlugin, ReleaseType } from 'mono-pub'
 
 class MonoPubCommitAnalyzer implements MonoPubPlugin {
     name = name
@@ -22,11 +22,11 @@ class MonoPubCommitAnalyzer implements MonoPubPlugin {
         this.parserOptions.noteKeywords = this.config.breakingNoteKeywords
     }
 
-    getReleaseType(commits: Array<string>, isDepsChanged: boolean): ReleaseType {
+    getReleaseType(commits: Array<CommitInfo>, isDepsChanged: boolean): ReleaseType {
         let releaseType: ReleaseType = isDepsChanged ? this.config.depsBumpReleaseType : 'none'
 
         for (const commit of commits) {
-            const parsedCommit = syncParser(commit, this.parserOptions)
+            const parsedCommit = syncParser(commit.message, this.parserOptions)
             if (
                 parsedCommit.breakMark ||
                 parsedCommit.notes.some((note) => this.config.breakingNoteKeywords.includes(note.title))
