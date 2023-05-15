@@ -36,10 +36,13 @@ export async function getAllPackageCommitsInRange(options: {
             cwd,
         }
     )
-    const splitRegexp = new RegExp(`\n\n\n${COMMIT_UNIQUE_SEPARATOR}\n`)
+    const splitRegexp = new RegExp(`\n\n\n${COMMIT_UNIQUE_SEPARATOR}`)
     const messages = stdout.split(splitRegexp)
 
-    return messages.filter(Boolean).map(parseCommitMessage)
+    return messages
+        .map((commit) => commit.trim())
+        .filter(Boolean)
+        .map(parseCommitMessage)
 }
 
 export async function getAllPackageCommits(options: {
