@@ -5,6 +5,7 @@ import type {
     LatestPackagesReleases,
     PackageInfoWithLatestRelease,
     ReleaseType,
+    CommitInfo,
 } from '@/types'
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
@@ -103,7 +104,7 @@ export class CombinedPlugin implements MonoPubPlugin {
         return this.versionGetter.getLastRelease(packages, ctx)
     }
 
-    async extractCommits(pkgInfo: PackageInfoWithLatestRelease, ctx: MonoPubContext): Promise<Array<string>> {
+    async extractCommits(pkgInfo: PackageInfoWithLatestRelease, ctx: MonoPubContext): Promise<Array<CommitInfo>> {
         if (!this.extractor) {
             throw new Error('No extractor found. You should run setup step before this')
         }
@@ -111,7 +112,11 @@ export class CombinedPlugin implements MonoPubPlugin {
         return this.extractor.extractCommits(pkgInfo, ctx)
     }
 
-    async getReleaseType(commits: Array<string>, isDepsChanged: boolean, ctx: MonoPubContext): Promise<ReleaseType> {
+    async getReleaseType(
+        commits: Array<CommitInfo>,
+        isDepsChanged: boolean,
+        ctx: MonoPubContext
+    ): Promise<ReleaseType> {
         if (!this.analyzer) {
             throw new Error('No analyzer found. You should run setup step before this')
         }
