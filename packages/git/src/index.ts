@@ -13,6 +13,7 @@ import { getAllPackageCommits } from '@/utils/commits'
 import { getOriginUrl } from '@/utils/branches'
 import type {
     BasePackageInfo,
+    CommitInfo,
     LatestPackagesReleases,
     MonoPubContext,
     MonoPubPlugin,
@@ -51,10 +52,14 @@ class MonoPubGit implements MonoPubPlugin {
         return getLatestReleases(tags, packageNames, this.tagFormat)
     }
 
-    async extractCommits(pkgInfo: PackageInfoWithLatestRelease, ctx: MonoPubContext): Promise<Array<string>> {
+    async extractCommits(pkgInfo: PackageInfoWithLatestRelease, ctx: MonoPubContext): Promise<Array<CommitInfo>> {
         const latestRelease = pkgInfo.latestRelease
         const latestTag = latestRelease ? getTagFromVersion(this.tagFormat, pkgInfo.name, latestRelease) : null
-        return await getAllPackageCommits(pkgInfo, latestTag, ctx.cwd)
+        return await getAllPackageCommits({
+            pkgInfo,
+            fromTag: latestTag,
+            cwd: ctx.cwd,
+        })
     }
 
     async postPublish(packageInfo: ReleasedPackageInfo, ctx: MonoPubContext): Promise<void> {
