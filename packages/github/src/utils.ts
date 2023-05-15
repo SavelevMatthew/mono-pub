@@ -1,4 +1,4 @@
-const REPO_URL_REGEXP = /^.+[\/:](?<owner>.+)\/(?<repo>.+).git$/
+const REPO_URL_REGEXP = /^.+[/:](?<owner>.+)\/(?<repo>.+).git$/
 const PULL_HEADER_REGEXP = /\(#(?<pr>\d+)\)$/
 
 export type RepoInfo = {
