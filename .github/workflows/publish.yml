@@ -25,6 +25,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
       - run: yarn --immutable
+      - run: yarn build
       - name: Run publish script
         run: node bin/publish.js
         env:
