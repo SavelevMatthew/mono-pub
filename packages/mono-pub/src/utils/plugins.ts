@@ -6,6 +6,7 @@ import type {
     PackageInfoWithLatestRelease,
     ReleaseType,
     CommitInfo,
+    ReleasedPackageInfo,
 } from '@/types'
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
@@ -14,6 +15,8 @@ type WithGetLastRelease = WithRequired<MonoPubPlugin, 'getLastRelease'>
 type WithExtractor = WithRequired<MonoPubPlugin, 'extractCommits'>
 type WithAnalyzer = WithRequired<MonoPubPlugin, 'getReleaseType'>
 type WithPrepare = WithRequired<MonoPubPlugin, 'prepare'>
+type WithPublish = WithRequired<MonoPubPlugin, 'publish'>
+type WithPostPublish = WithRequired<MonoPubPlugin, 'postPublish'>
 
 export class CombinedPlugin implements MonoPubPlugin {
     name = 'CombinedPlugin'
@@ -23,6 +26,8 @@ export class CombinedPlugin implements MonoPubPlugin {
     analyzer?: WithAnalyzer
     neededSetup: Array<WithSetup> = []
     preparers: Array<WithPrepare> = []
+    publishers: Array<WithPublish> = []
+    postPublishers: Array<WithPostPublish> = []
 
     constructor(plugins: Array<MonoPubPlugin>) {
         this.allPlugins = plugins
@@ -64,6 +69,16 @@ export class CombinedPlugin implements MonoPubPlugin {
             if (plugin.prepare) {
                 logger.log(this._getStepMessage('prepare', plugin))
                 this.preparers.push(plugin as WithPrepare)
+            }
+
+            if (plugin.publish) {
+                logger.log(this._getStepMessage('publish', plugin))
+                this.publishers.push(plugin as WithPublish)
+            }
+
+            if (plugin.postPublish) {
+                logger.log(this._getStepMessage('postPublish', plugin))
+                this.postPublishers.push(plugin as WithPostPublish)
             }
         }
 
@@ -120,14 +135,30 @@ export class CombinedPlugin implements MonoPubPlugin {
         if (!this.analyzer) {
             throw new Error('No analyzer found. You should run setup step before this')
         }
-        ctx.logger.log(`Running "getReleaseType" of "${this.analyzer.name}" plugin`)
+        ctx.logger.log(`Running "getReleaseType" step of "${this.analyzer.name}" plugin`)
         return this.analyzer.getReleaseType(commits, isDepsChanged, ctx)
     }
 
     async prepare(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Promise<void> {
         for (const plugin of this.preparers) {
-            ctx.logger.log(`Running "prepare" of "${plugin.name}" plugin`)
+            ctx.logger.log(`Running "prepare" step of "${plugin.name}" plugin`)
             await plugin.prepare(packages, ctx)
+        }
+    }
+
+    async publish(packageInfo: BasePackageInfo, ctx: MonoPubContext): Promise<void> {
+        ctx.logger.log('Starting to publish a package')
+        for (const plugin of this.publishers) {
+            ctx.logger.log(`Running "publish" step of "${plugin.name}" plugin`)
+            await plugin.publish(packageInfo, ctx)
+        }
+    }
+
+    async postPublish(packageInfo: ReleasedPackageInfo, ctx: MonoPubContext): Promise<void> {
+        ctx.logger.log('Running postPublish side effects')
+        for (const plugin of this.postPublishers) {
+            ctx.logger.log(`Running "postPublish" step of "${plugin.name}" plugin`)
+            await plugin.postPublish(packageInfo, ctx)
         }
     }
 }

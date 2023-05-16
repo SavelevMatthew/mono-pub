@@ -13,6 +13,8 @@ import type {
     ReleaseType,
     PackageVersion,
     CommitInfo,
+    ReleasedPackageInfo,
+    BasePackageInfo,
 } from '@/types'
 
 export type * from '@/types'
@@ -39,7 +41,10 @@ export default async function publish(
 
     logger.info('Starting releasing process...')
     const packages = await getAllPackages(paths, context.cwd)
-    const packagesInfo = Object.assign({}, ...packages.map((pkg) => ({ [pkg.name]: pkg })))
+    const packagesInfo: Record<string, BasePackageInfo> = Object.assign(
+        {},
+        ...packages.map((pkg) => ({ [pkg.name]: pkg }))
+    )
     if (!packages.length) {
         logger.success('No matching packages found. Exiting...')
         return
@@ -137,4 +142,23 @@ export default async function publish(
     }
 
     await releaseChain.prepare(packages, context)
+
+    for (const packageName of releaseOrder) {
+        await releaseChain.publish(packagesInfo[packageName], scopedContexts[packageName])
+        const releasedInfo: ReleasedPackageInfo = {
+            ...packagesInfo[packageName],
+            oldVersion: latestReleases[packageName],
+            newVersion: newVersions[packageName],
+            releaseType: releaseTypes[packageName],
+            commits: newCommits[packageName],
+            bumpedDeps: packagesWithDeps[packageName].dependsOn.map((dep) => ({
+                ...packagesInfo[dep.name],
+                oldVersion: latestReleases[dep.name],
+                releaseType: releaseTypes[dep.name],
+                newVersion: newVersions[dep.name],
+            })),
+        }
+        await releaseChain.postPublish(releasedInfo, scopedContexts[packageName])
+        scopedContexts[packageName].logger.success('Package successfully published!')
+    }
 }
