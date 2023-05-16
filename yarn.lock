@@ -838,7 +838,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@mono-pub/github@workspace:packages/github":
+"@mono-pub/github@workspace:^, @mono-pub/github@workspace:packages/github":
   version: 0.0.0-use.local
   resolution: "@mono-pub/github@workspace:packages/github"
   dependencies:
@@ -883,6 +883,7 @@ __metadata:
   dependencies:
     "@mono-pub/commit-analyzer": "workspace:^"
     "@mono-pub/git": "workspace:^"
+    "@mono-pub/github": "workspace:^"
     "@mono-pub/npm": "workspace:^"
     "@types/jest": ^29.5.1
     execa: ^5
