@@ -5,7 +5,7 @@ import type { CommitInfo, ReleasedPackageInfo } from 'mono-pub'
 import type { ReleaseNoteRule } from '@/types'
 import type { Options as ParserOptions } from 'conventional-commits-parser'
 
-const REPO_URL_REGEXP = /^.+[/:](?<owner>.+)\/(?<repo>.+).git$/
+const REPO_URL_REGEXP = /^.+[/:](?<owner>.+)\/(?<repo>.+?)(?:\..+)?$/
 const PULL_HEADER_REGEXP = /\(#(?<pr>\d+)\)$/
 const COMMIT_PARSER_OPTIONS: ParserOptions = {
     headerPattern: /^(\w*)(?:\(([\w$.\-* ]*)\))?(!?): (.*)$/,
