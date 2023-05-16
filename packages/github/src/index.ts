@@ -1,22 +1,34 @@
 import { Octokit } from '@octokit/rest'
 import get from 'lodash/get'
 import { name } from '../package.json'
-import { extractRepoFromOriginUrl, getPullFromCommit } from '@/utils'
+import { extractRepoFromOriginUrl, getPullFromCommit, generateReleaseNotes } from '@/utils'
 import { getOriginUrl, getTagFromVersion, getAllPackageCommits, getAllPackageCommitsInRange } from '@mono-pub/git/utils'
-import type { MonoPubPlugin, MonoPubContext, PackageInfoWithLatestRelease, CommitInfo } from 'mono-pub'
+import type {
+    MonoPubPlugin,
+    MonoPubContext,
+    PackageInfoWithLatestRelease,
+    CommitInfo,
+    ReleasedPackageInfo,
+} from 'mono-pub'
 import type { RepoInfo } from '@/utils'
 import type { Octokit as OctoType } from '@octokit/rest'
+import type { MonoPubGithubConfig } from '@/types'
 
-type MonoPubGithubConfig = {
-    envTokenKey: string
-    extractCommitsFromSquashed: boolean
-    tagFormat: string
-}
+export type * from '@/types'
 
 const DEFAULT_CONFIG: MonoPubGithubConfig = {
     envTokenKey: 'GITHUB_TOKEN',
     extractCommitsFromSquashed: true,
     tagFormat: '{name}@{version}',
+    releaseNotesOptions: {
+        rules: [
+            { breaking: true, section: 'BREAKING CHANGES' },
+            { type: 'feat', section: 'New features' },
+            { type: 'fix', section: 'Bug fixes' },
+            { dependency: true, section: 'Dependencies' },
+        ],
+        breakingNoteKeywords: ['BREAKING-CHANGE', 'BREAKING CHANGE'],
+    },
 }
 
 class MonoPubGithub implements MonoPubPlugin {
@@ -97,6 +109,32 @@ class MonoPubGithub implements MonoPubPlugin {
         }
 
         return commits
+    }
+
+    async postPublish(packageInfo: ReleasedPackageInfo, ctx: MonoPubContext): Promise<void> {
+        if (!this.#octokit) {
+            ctx.logger.error('Setup step was not successful!')
+            throw new Error('No octokit initialized. Probably because setup step was not run correctly')
+        }
+        ctx.logger.log('Generating release notes')
+        const notes = generateReleaseNotes(
+            packageInfo,
+            this.config.releaseNotesOptions.rules,
+            this.config.releaseNotesOptions.breakingNoteKeywords
+        )
+        ctx.logger.log('Publishing release notes')
+        const newTag = getTagFromVersion(this.config.tagFormat, packageInfo.name, packageInfo.newVersion)
+        const response = await this.#octokit.rest.repos.createRelease({
+            ...this.repoInfo,
+            tag_name: newTag,
+            name: newTag,
+            body: notes,
+        })
+        if (response.status !== 201) {
+            ctx.logger.error('Could not publish release notes')
+            ctx.logger.error(response.data)
+            throw new Error('Release notes publishing failed')
+        }
     }
 }
 

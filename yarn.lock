@@ -848,6 +848,7 @@ __metadata:
     "@octokit/types": ^9.2.2
     "@rushstack/eslint-patch": ^1.2.0
     "@types/lodash": ^4.14.194
+    conventional-commits-parser: ^3.2.4
     eslint: ^8.39.0
     lodash: ^4.17.21
     mono-pub: "workspace:^"
