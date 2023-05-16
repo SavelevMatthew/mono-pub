@@ -3,6 +3,10 @@
 
 name: Node.js CI Publish packages
 
+permission:
+  contents: write
+
+
 on:
   push:
     branches: [ "main" ]
