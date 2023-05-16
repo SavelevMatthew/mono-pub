@@ -115,5 +115,5 @@ export async function pushNewVersionTag(tagFormat: string, pkgName: string, newV
         .replace(NAME_PLACEHOLDER, pkgName)
         .replace(VERSION_PLACEHOLDER, versionToString(newVersion))
     await execa('git', ['tag', newTag], { cwd })
-    await execa('git', ['push', 'origin', '--tags'], { cwd })
+    await execa('git', ['push', 'origin', newTag], { cwd })
 }
