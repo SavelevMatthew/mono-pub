@@ -138,6 +138,6 @@ class MonoPubGithub implements MonoPubPlugin {
     }
 }
 
-export default function github() {
-    return new MonoPubGithub()
+export default function github(config?: Partial<MonoPubGithubConfig>) {
+    return new MonoPubGithub(config)
 }
