@@ -3,7 +3,7 @@
 
 name: Node.js CI Publish packages
 
-permission:
+permissions:
   contents: write
 
 
