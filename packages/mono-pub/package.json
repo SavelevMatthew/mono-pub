@@ -56,5 +56,8 @@
     "glob": "^10.2.2",
     "lodash": "^4.17.21",
     "signale": "^1.4.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

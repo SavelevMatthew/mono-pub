@@ -55,5 +55,8 @@
   },
   "dependencies": {
     "execa": "^5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

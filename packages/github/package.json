@@ -41,5 +41,8 @@
     "@octokit/rest": "^19.0.7",
     "conventional-commits-parser": "^3.2.4",
     "lodash": "^4.17.21"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
