@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/rest'
 import { name } from '../package.json'
 import { extractRepoFromOriginUrl, getPullFromCommit, generateReleaseNotes, extractPrCommits } from '@/utils'
-import { getOriginUrl, getTagFromVersion, getAllPackageCommits } from '@mono-pub/git/utils'
+import { getOriginUrl, getTagFromVersion, getAllPackageCommits, DEFAULT_TAG_FORMAT } from '@mono-pub/git/utils'
 import path from 'path'
 
 import type {
@@ -20,7 +20,7 @@ export type * from '@/types'
 const DEFAULT_CONFIG: MonoPubGithubConfig = {
     envTokenKey: 'GITHUB_TOKEN',
     extractCommitsFromSquashed: true,
-    tagFormat: '{name}@{version}',
+    tagFormat: DEFAULT_TAG_FORMAT,
     releaseNotesOptions: {
         rules: [
             { breaking: true, section: 'BREAKING CHANGES' },
@@ -34,9 +34,9 @@ const DEFAULT_CONFIG: MonoPubGithubConfig = {
 
 class MonoPubGithub implements MonoPubPlugin {
     name = name
-    config = DEFAULT_CONFIG
-    repoInfo: RepoInfo = { repo: '', owner: '' }
-    #octokit?: OctoType
+    readonly config = DEFAULT_CONFIG
+    private repoInfo: RepoInfo = { repo: '', owner: '' }
+    private octokit?: OctoType
 
     constructor(config?: Partial<MonoPubGithubConfig>) {
         this.config = { ...this.config, ...config }
@@ -63,14 +63,14 @@ class MonoPubGithub implements MonoPubPlugin {
             return false
         }
         this.repoInfo = repoInfo
-        this.#octokit = new Octokit({
+        this.octokit = new Octokit({
             auth: ghToken,
         })
         return true
     }
 
     async extractCommits(packageInfo: PackageInfoWithLatestRelease, ctx: MonoPubContext): Promise<Array<CommitInfo>> {
-        if (!this.#octokit) {
+        if (!this.octokit) {
             ctx.logger.error('Setup step was not successful!')
             throw new Error('No octokit initialized. Probably because setup step was not run correctly')
         }
@@ -91,7 +91,7 @@ class MonoPubGithub implements MonoPubPlugin {
                 continue
             }
 
-            const prCommits = await extractPrCommits(this.repoInfo, prNumber, packageDir, this.#octokit)
+            const prCommits = await extractPrCommits(this.repoInfo, prNumber, packageDir, this.octokit)
             commits.push(...prCommits)
         }
 
@@ -99,7 +99,7 @@ class MonoPubGithub implements MonoPubPlugin {
     }
 
     async postPublish(packageInfo: ReleasedPackageInfo, ctx: MonoPubContext): Promise<void> {
-        if (!this.#octokit) {
+        if (!this.octokit) {
             ctx.logger.error('Setup step was not successful!')
             throw new Error('No octokit initialized. Probably because setup step was not run correctly')
         }
@@ -111,7 +111,7 @@ class MonoPubGithub implements MonoPubPlugin {
         )
         ctx.logger.log('Publishing release notes')
         const newTag = getTagFromVersion(this.config.tagFormat, packageInfo.name, packageInfo.newVersion)
-        const response = await this.#octokit.rest.repos.createRelease({
+        const response = await this.octokit.rest.repos.createRelease({
             ...this.repoInfo,
             tag_name: newTag,
             name: newTag,

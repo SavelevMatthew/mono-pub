@@ -8,12 +8,12 @@ import type { CommitInfo, MonoPubPlugin, ReleaseType } from 'mono-pub'
 
 class MonoPubCommitAnalyzer implements MonoPubPlugin {
     name = name
-    parserOptions: ParserOptions = {
+    private readonly parserOptions: ParserOptions = {
         headerPattern: /^(\w*)(?:\(([\w$.\-* ]*)\))?(!?): (.*)$/,
         headerCorrespondence: ['type', 'scope', 'breakMark', 'subject'],
     }
 
-    config: CommitAnalyzerConfig = DEFAULT_CONFIG
+    readonly config: CommitAnalyzerConfig = DEFAULT_CONFIG
 
     constructor(config?: Partial<CommitAnalyzerConfig>) {
         if (config) {
@@ -27,17 +27,17 @@ class MonoPubCommitAnalyzer implements MonoPubPlugin {
 
         for (const commit of commits) {
             const parsedCommit = syncParser(commit.message, this.parserOptions)
+
+            const commitType = parsedCommit.type
+            if (!commitType) {
+                continue
+            }
+
             if (
                 parsedCommit.breakMark ||
                 parsedCommit.notes.some((note) => this.config.breakingNoteKeywords.includes(note.title))
             ) {
                 return 'major'
-            }
-
-            const commitType = parsedCommit.type
-
-            if (!commitType) {
-                continue
             }
 
             if (this.config.majorTypes.includes(commitType)) {
