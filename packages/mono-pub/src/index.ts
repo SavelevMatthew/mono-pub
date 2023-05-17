@@ -188,6 +188,6 @@ export default async function publish(
             bumpedDeps,
         }
         await releaseChain.postPublish(releasedPackageInfo, scopedContexts[packageName])
-        scopedContexts[packageName].logger.success('Package successfully published!')
+        scopedContexts[packageName].logger.success('Package is successfully published!')
     }
 }

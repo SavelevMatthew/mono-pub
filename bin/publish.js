@@ -26,6 +26,7 @@ publish(
                     { type: 'feat', section: '🦕 New features' },
                     { type: 'fix', section: '🐞 Bug fixes' },
                     { type: 'perf', section: '🚀 Performance increases' },
+                    { type: 'chore', section: '🗒️ Others' },
                     { dependency: true, section: '🌐Dependencies' },
                 ],
                 breakingNoteKeywords: BREAKING_KEYWORDS,
@@ -37,6 +38,6 @@ publish(
             breakingNoteKeywords: BREAKING_KEYWORDS,
         }),
         builder,
-        npm({ dryRun: true }),
+        npm({ provenance: true }),
     ]
 )
