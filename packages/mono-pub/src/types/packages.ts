@@ -37,8 +37,10 @@ type PackageReleaseInfo = {
     releaseType: ReleaseType
 }
 
+export type BumpedDep = BasePackageInfo & PackageReleaseInfo
+
 export type ReleasedPackageInfo = BasePackageInfo &
     PackageReleaseInfo & {
         commits: Array<CommitInfo>
-        bumpedDeps: Array<BasePackageInfo & PackageReleaseInfo>
+        bumpedDeps: Array<BumpedDep>
     }

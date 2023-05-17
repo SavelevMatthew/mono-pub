@@ -3,13 +3,7 @@ import get from 'lodash/get'
 import set from 'lodash/set'
 import { versionToString, getVersionCriteria } from '@/utils/versions'
 
-import type {
-    BasePackageInfo,
-    PackageInfoWithDependencies,
-    DependencyInfo,
-    PackageVersion,
-    LatestPackagesReleases,
-} from '@/types'
+import type { BasePackageInfo, PackageInfoWithDependencies, DependencyInfo, LatestPackagesReleases } from '@/types'
 
 export async function getDependencies(
     packages: Array<BasePackageInfo>
@@ -77,7 +71,7 @@ export function getReleaseOrder(packages: Record<string, PackageInfoWithDependen
 
 export async function patchPackageDeps(
     pkg: PackageInfoWithDependencies,
-    newVersions: Record<string, PackageVersion>,
+    newVersions: LatestPackagesReleases,
     latestReleases: LatestPackagesReleases
 ): Promise<void> {
     const file = await fsPromises.readFile(pkg.location)
