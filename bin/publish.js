@@ -15,7 +15,7 @@ const builder = {
 const BREAKING_KEYWORDS = ['BREAKING CHANGE', 'BREAKING-CHANGE', 'BREAKING CHANGES', 'BREAKING-CHANGES']
 
 publish(
-    ['packages/configs'],
+    ['packages/*'],
     [
         git(),
         github({
