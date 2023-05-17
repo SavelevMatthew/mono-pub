@@ -15,7 +15,7 @@ const builder = {
 const BREAKING_KEYWORDS = ['BREAKING CHANGE', 'BREAKING-CHANGE', 'BREAKING CHANGES', 'BREAKING-CHANGES']
 
 publish(
-    ['packages/config', 'packages/mono-pub'],
+    ['packages/*'],
     [
         git(),
         github({
@@ -26,7 +26,6 @@ publish(
                     { type: 'feat', section: '🦕 New features' },
                     { type: 'fix', section: '🐞 Bug fixes' },
                     { type: 'perf', section: '🚀 Performance increases' },
-                    { type: 'chore', section: '🗒️ Others' },
                     { dependency: true, section: '🌐Dependencies' },
                 ],
                 breakingNoteKeywords: BREAKING_KEYWORDS,
@@ -34,7 +33,7 @@ publish(
         }),
         commitAnalyzer({
             minorTypes: ['feat'],
-            patchTypes: ['perf', 'fix', 'chore'],
+            patchTypes: ['perf', 'fix'],
             breakingNoteKeywords: BREAKING_KEYWORDS,
         }),
         builder,
