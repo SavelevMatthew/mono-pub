@@ -1,4 +1,5 @@
 import get from 'lodash/get'
+import isEqual from 'lodash/isEqual'
 import { getAllPackages } from '@/utils/path'
 import getLogger from '@/logger'
 import { CombinedPlugin } from '@/utils/plugins'
@@ -11,10 +12,11 @@ import type {
     MonoPubOptions,
     PackageInfoWithDependencies,
     ReleaseType,
-    PackageVersion,
     CommitInfo,
+    BumpedDep,
     ReleasedPackageInfo,
     BasePackageInfo,
+    LatestReleasedVersion,
 } from '@/types'
 
 export type * from '@/types'
@@ -103,37 +105,39 @@ export default async function publish(
 
     const newCommits: Record<string, Array<CommitInfo>> = {}
     const releaseTypes: Record<string, ReleaseType> = {}
-    const newVersions: Record<string, PackageVersion> = {}
+    const newVersions: Record<string, LatestReleasedVersion> = {}
 
     for (const pkgName of releaseOrder) {
         const scopedLogger = scopedContexts[pkgName].logger
+
+        const latestRelease = get(latestReleases, pkgName, null)
         const commits = await releaseChain.extractCommits(
-            { ...packagesInfo[pkgName], latestRelease: get(latestReleases, pkgName, null) },
+            { ...packagesInfo[pkgName], latestRelease },
             scopedContexts[pkgName]
         )
         scopedLogger.info(`Found ${commits.length} commits since last release`)
         newCommits[pkgName] = commits
-        const isDepsChanged = packagesWithDeps[pkgName].dependsOn.some((dep) => releaseTypes[dep.name] !== 'none')
-        const releaseType = await releaseChain.getReleaseType(commits, isDepsChanged, scopedContexts[pkgName])
-        releaseTypes[pkgName] = releaseType
-        if (releaseType === 'none') {
-            scopedLogger.info('There are no relevant changes, so no new version is released')
-            continue
-        }
 
-        const latestRelease = get(latestReleases, pkgName, null)
+        const isDepsChanged = packagesWithDeps[pkgName].dependsOn.some((dep) => releaseTypes[dep.name] !== 'none')
+
+        const releaseType = await releaseChain.getReleaseType(commits, isDepsChanged, scopedContexts[pkgName])
         const newVersion = getNewVersion(latestRelease, releaseType)
+        releaseTypes[pkgName] = releaseType
         newVersions[pkgName] = newVersion
 
-        if (latestRelease) {
+        if (!newVersion || releaseType === 'none') {
+            scopedLogger.info("There are no relevant changes found, so no new version won't be released")
+        } else if (latestRelease) {
             scopedLogger.info(
-                `Release type was defined as "${releaseType}". So the next release version is ${versionToString(
-                    newVersion
-                )}`
+                `Found "${releaseType}" relevant changes since latest released version ("${versionToString(
+                    latestRelease
+                )}"). So the next version of the package is "${versionToString(newVersion)}"`
             )
         } else {
             scopedLogger.info(
-                `The next release version is ${versionToString(newVersion)}, since package has no previous releases`
+                `Package has no previous releases, but "${releaseType}" relevant changes found, that's why package will be released under "${versionToString(
+                    newVersion
+                )} version"`
             )
         }
     }
@@ -149,24 +153,41 @@ export default async function publish(
     await releaseChain.prepare(packages, context)
 
     for (const packageName of releaseOrder) {
-        if (releaseTypes[packageName] === 'none') {
+        const newVersion = newVersions[packageName]
+        const releaseType = releaseTypes[packageName]
+        const oldVersion = latestReleases[packageName]
+        if (releaseType === 'none' || !newVersion || isEqual(newVersion, oldVersion)) {
             continue
         }
+
         await releaseChain.publish(packagesInfo[packageName], scopedContexts[packageName])
-        const releasedInfo: ReleasedPackageInfo = {
-            ...packagesInfo[packageName],
-            oldVersion: latestReleases[packageName],
-            newVersion: newVersions[packageName],
-            releaseType: releaseTypes[packageName],
-            commits: newCommits[packageName],
-            bumpedDeps: packagesWithDeps[packageName].dependsOn.map((dep) => ({
+
+        const bumpedDeps: Array<BumpedDep> = []
+
+        for (const dep of packagesWithDeps[packageName].dependsOn) {
+            const depOldVersion = latestReleases[dep.name]
+            const depNewVersion = newVersions[dep.name]
+            const depReleaseType = releaseTypes[dep.name]
+            if (!depNewVersion || isEqual(depNewVersion, depOldVersion) || depReleaseType === 'none') {
+                continue
+            }
+            bumpedDeps.push({
                 ...packagesInfo[dep.name],
-                oldVersion: latestReleases[dep.name],
-                releaseType: releaseTypes[dep.name],
-                newVersion: newVersions[dep.name],
-            })),
+                oldVersion: depOldVersion,
+                newVersion: depNewVersion,
+                releaseType: depReleaseType,
+            })
         }
-        await releaseChain.postPublish(releasedInfo, scopedContexts[packageName])
+
+        const releasedPackageInfo: ReleasedPackageInfo = {
+            ...packagesInfo[packageName],
+            oldVersion,
+            newVersion,
+            releaseType,
+            commits: newCommits[packageName],
+            bumpedDeps,
+        }
+        await releaseChain.postPublish(releasedPackageInfo, scopedContexts[packageName])
         scopedContexts[packageName].logger.success('Package successfully published!')
     }
 }
