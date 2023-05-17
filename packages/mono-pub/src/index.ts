@@ -120,9 +120,11 @@ export default async function publish(
             scopedLogger.info('There are no relevant changes, so no new version is released')
             continue
         }
+
         const latestRelease = get(latestReleases, pkgName, null)
         const newVersion = getNewVersion(latestRelease, releaseType)
         newVersions[pkgName] = newVersion
+
         if (latestRelease) {
             scopedLogger.info(
                 `Release type was defined as "${releaseType}". So the next release version is ${versionToString(
@@ -144,6 +146,9 @@ export default async function publish(
     await releaseChain.prepare(packages, context)
 
     for (const packageName of releaseOrder) {
+        if (releaseTypes[packageName] === 'none') {
+            continue
+        }
         await releaseChain.publish(packagesInfo[packageName], scopedContexts[packageName])
         const releasedInfo: ReleasedPackageInfo = {
             ...packagesInfo[packageName],
