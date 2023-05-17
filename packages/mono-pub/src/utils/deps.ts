@@ -91,7 +91,7 @@ export async function patchPackageDeps(
         )
     }
 
-    set(packageJson, 'version', versionToString(newVersions[pkg.name]))
+    set(packageJson, 'version', versionToString(version))
 
     for (const dep of pkg.dependsOn) {
         const depsGroup = dep.type === 'dep' ? 'dependencies' : 'devDependencies'
@@ -101,7 +101,7 @@ export async function patchPackageDeps(
                 `Unable to patch package dependency ("${dep.name}"), since it has no previous versions and relevant changes`
             )
         }
-        set(packageJson, [depsGroup, dep.name], getVersionCriteria(dep.value, versionToString(newVersions[dep.name])))
+        set(packageJson, [depsGroup, dep.name], getVersionCriteria(dep.value, versionToString(depVersion)))
     }
 
     await fsPromises.writeFile(pkg.location, JSON.stringify(packageJson, null, 2))
