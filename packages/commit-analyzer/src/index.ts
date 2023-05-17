@@ -27,17 +27,17 @@ class MonoPubCommitAnalyzer implements MonoPubPlugin {
 
         for (const commit of commits) {
             const parsedCommit = syncParser(commit.message, this.parserOptions)
+
+            const commitType = parsedCommit.type
+            if (!commitType) {
+                continue
+            }
+
             if (
                 parsedCommit.breakMark ||
                 parsedCommit.notes.some((note) => this.config.breakingNoteKeywords.includes(note.title))
             ) {
                 return 'major'
-            }
-
-            const commitType = parsedCommit.type
-
-            if (!commitType) {
-                continue
             }
 
             if (this.config.majorTypes.includes(commitType)) {

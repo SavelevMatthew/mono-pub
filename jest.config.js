@@ -16,5 +16,8 @@ module.exports = {
             '^.+\\.ts?$': ['ts-jest', { tsconfig: `<rootDir>/packages/${pkg}/tsconfig.json` }],
         },
         testMatch: [`<rootDir>/packages/${pkg}/**/*.spec.ts`],
+        moduleNameMapper: {
+            '^@/(.*)$': `<rootDir>/packages/${pkg}/src/$1`,
+        },
     })),
 }

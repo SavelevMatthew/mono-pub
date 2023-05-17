@@ -1,6 +1,6 @@
 import type { ReleaseType } from 'mono-pub'
 
-const IMPORTANCE_ORDER: Array<ReleaseType> = ['major', 'minor', 'patch', 'none']
+export const IMPORTANCE_ORDER: Array<ReleaseType> = ['major', 'minor', 'patch', 'none']
 
 export function getMostImportantType(lhs: ReleaseType, rhs: ReleaseType): ReleaseType {
     const lhsIndex = IMPORTANCE_ORDER.indexOf(lhs)
