@@ -139,8 +139,11 @@ export default async function publish(
     }
 
     for (const pkg of Object.values(packagesWithDeps)) {
+        if (releaseTypes[pkg.name] === 'none') {
+            continue
+        }
         scopedContexts[pkg.name].logger.log('Patching package.json with a new version criteria')
-        await patchPackageDeps(pkg, newVersions)
+        await patchPackageDeps(pkg, newVersions, latestReleases)
     }
 
     await releaseChain.prepare(packages, context)

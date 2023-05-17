@@ -3,7 +3,13 @@ import get from 'lodash/get'
 import set from 'lodash/set'
 import { versionToString, getVersionCriteria } from '@/utils/versions'
 
-import type { BasePackageInfo, PackageInfoWithDependencies, DependencyInfo, PackageVersion } from '@/types'
+import type {
+    BasePackageInfo,
+    PackageInfoWithDependencies,
+    DependencyInfo,
+    PackageVersion,
+    LatestPackagesReleases,
+} from '@/types'
 
 export async function getDependencies(
     packages: Array<BasePackageInfo>
@@ -71,14 +77,30 @@ export function getReleaseOrder(packages: Record<string, PackageInfoWithDependen
 
 export async function patchPackageDeps(
     pkg: PackageInfoWithDependencies,
-    newVersions: Record<string, PackageVersion>
+    newVersions: Record<string, PackageVersion>,
+    latestReleases: LatestPackagesReleases
 ): Promise<void> {
     const file = await fsPromises.readFile(pkg.location)
     const packageJson = JSON.parse(file.toString())
+
+    const version = newVersions[pkg.name] || latestReleases[pkg.name]
+
+    if (!version) {
+        throw new TypeError(
+            `Unable to patch package version ("${pkg.name}"), since it wasn't released before and no relevant changes were introduced`
+        )
+    }
+
     set(packageJson, 'version', versionToString(newVersions[pkg.name]))
 
     for (const dep of pkg.dependsOn) {
         const depsGroup = dep.type === 'dep' ? 'dependencies' : 'devDependencies'
+        const depVersion = newVersions[dep.name] || latestReleases[dep.name]
+        if (!depVersion) {
+            throw new TypeError(
+                `Unable to patch package dependency ("${dep.name}"), since it has no previous versions and relevant changes`
+            )
+        }
         set(packageJson, [depsGroup, dep.name], getVersionCriteria(dep.value, versionToString(newVersions[dep.name])))
     }
 
