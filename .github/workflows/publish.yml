@@ -5,6 +5,7 @@ name: Node.js CI Publish packages
 
 permissions:
   contents: write
+  id-token: write
 
 
 on:
