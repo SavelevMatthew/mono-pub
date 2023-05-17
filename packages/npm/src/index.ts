@@ -8,16 +8,18 @@ import type { MonoPubPlugin, MonoPubContext, BasePackageInfo } from 'mono-pub'
 
 type MonoPubNpmConfig = {
     envTokenKey: string
-    skipIfExist: boolean
     distTag: string
+    dryRun: boolean
+    provenance: boolean
 }
 
 const DEFAULT_NPM_REGISTRY = 'https://registry.npmjs.org'
 
 const DEFAULT_NPM_CONFIG: MonoPubNpmConfig = {
     envTokenKey: 'NPM_TOKEN',
-    skipIfExist: true,
     distTag: 'latest',
+    dryRun: false,
+    provenance: false,
 }
 
 class MonoPubNpm implements MonoPubPlugin {
@@ -63,27 +65,17 @@ class MonoPubNpm implements MonoPubPlugin {
     }
 
     async publish(packageInfo: BasePackageInfo, ctx: MonoPubContext): Promise<void> {
-        try {
-            const npmToken = ctx.env[this.config.envTokenKey]
-            const runDir = path.dirname(packageInfo.location)
-            await execa(
-                'npm',
-                ['publish', '--tag', this.config.distTag, '--userconfig', this.npmConfigFile, '--no-workspaces'],
-                { cwd: runDir, env: { NPM_TOKEN: npmToken } }
-            )
-        } catch (err) {
-            if (
-                !this.config.skipIfExist ||
-                !err ||
-                typeof err !== 'object' ||
-                !('stderr' in err) ||
-                typeof err.stderr !== 'string' ||
-                !err.stderr.includes('code E403') ||
-                !err.stderr.includes('You cannot publish over the previously published versions')
-            ) {
-                throw err
-            }
+        const npmToken = ctx.env[this.config.envTokenKey]
+        const runDir = path.dirname(packageInfo.location)
+        const args = ['publish', '--tag', this.config.distTag, '--userconfig', this.npmConfigFile, '--no-workspaces']
+        if (this.config.dryRun) {
+            args.push('--dry-run')
         }
+        if (this.config.provenance) {
+            args.push('--provenance')
+        }
+
+        await execa('npm', args, { cwd: runDir, env: { NPM_TOKEN: npmToken } })
     }
 }
 

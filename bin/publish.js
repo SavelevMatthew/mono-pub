@@ -15,7 +15,7 @@ const builder = {
 const BREAKING_KEYWORDS = ['BREAKING CHANGE', 'BREAKING-CHANGE', 'BREAKING CHANGES', 'BREAKING-CHANGES']
 
 publish(
-    ['packages/*'],
+    ['packages/config', 'packages/mono-pub'],
     [
         git(),
         github({
@@ -37,6 +37,6 @@ publish(
             breakingNoteKeywords: BREAKING_KEYWORDS,
         }),
         builder,
-        npm(),
+        npm({ dryRun: true }),
     ]
 )
