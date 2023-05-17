@@ -13,7 +13,7 @@ class MonoPubCommitAnalyzer implements MonoPubPlugin {
         headerCorrespondence: ['type', 'scope', 'breakMark', 'subject'],
     }
 
-    private readonly config: CommitAnalyzerConfig = DEFAULT_CONFIG
+    readonly config: CommitAnalyzerConfig = DEFAULT_CONFIG
 
     constructor(config?: Partial<CommitAnalyzerConfig>) {
         if (config) {

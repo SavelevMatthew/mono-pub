@@ -22,8 +22,8 @@ const DEFAULT_NPM_CONFIG: MonoPubNpmConfig = {
 
 class MonoPubNpm implements MonoPubPlugin {
     name = name
-    config = DEFAULT_NPM_CONFIG
-    npmConfigFile = '.npmrc'
+    readonly config = DEFAULT_NPM_CONFIG
+    private readonly npmConfigFile: string = '.npmrc'
 
     constructor(config?: Partial<MonoPubNpmConfig>) {
         setGracefulCleanup()
