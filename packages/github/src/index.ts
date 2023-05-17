@@ -1,8 +1,9 @@
 import { Octokit } from '@octokit/rest'
-import get from 'lodash/get'
 import { name } from '../package.json'
-import { extractRepoFromOriginUrl, getPullFromCommit, generateReleaseNotes } from '@/utils'
-import { getOriginUrl, getTagFromVersion, getAllPackageCommits, getAllPackageCommitsInRange } from '@mono-pub/git/utils'
+import { extractRepoFromOriginUrl, getPullFromCommit, generateReleaseNotes, extractPrCommits } from '@/utils'
+import { getOriginUrl, getTagFromVersion, getAllPackageCommits } from '@mono-pub/git/utils'
+import path from 'path'
+
 import type {
     MonoPubPlugin,
     MonoPubContext,
@@ -73,6 +74,7 @@ class MonoPubGithub implements MonoPubPlugin {
             ctx.logger.error('Setup step was not successful!')
             throw new Error('No octokit initialized. Probably because setup step was not run correctly')
         }
+        const packageDir = path.dirname(path.relative(ctx.cwd, packageInfo.location))
         const latestRelease = packageInfo.latestRelease
         const latestTag = latestRelease
             ? getTagFromVersion(this.config.tagFormat, packageInfo.name, latestRelease)
@@ -88,23 +90,8 @@ class MonoPubGithub implements MonoPubPlugin {
                 commits.push(commit)
                 continue
             }
-            const pr = await this.#octokit.rest.pulls.get({
-                ...this.repoInfo,
-                pull_number: prNumber,
-            })
-            const baseSha = get(pr, ['data', 'base', 'sha'], null)
-            const headSha = get(pr, ['data', 'head', 'sha'], null)
-            if (pr.status !== 200 || !baseSha || !headSha) {
-                ctx.logger.error('Could not extract PR info from commit header')
-                ctx.logger.error(pr.data)
-                throw new Error('Could not extract PR info from commit header')
-            }
-            const prCommits = await getAllPackageCommitsInRange({
-                pkgInfo: packageInfo,
-                cwd: ctx.cwd,
-                from: baseSha,
-                to: headSha,
-            })
+
+            const prCommits = await extractPrCommits(this.repoInfo, prNumber, packageDir, this.#octokit)
             commits.push(...prCommits)
         }
 

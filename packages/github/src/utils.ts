@@ -1,10 +1,13 @@
 import { sync as syncParser } from 'conventional-commits-parser'
+import get from 'lodash/get'
 import { versionToString } from 'mono-pub/utils'
 
 import type { CommitInfo, ReleasedPackageInfo } from 'mono-pub'
 import type { ReleaseNoteRule } from '@/types'
 import type { Options as ParserOptions } from 'conventional-commits-parser'
+import type { Octokit } from '@octokit/rest'
 
+const MAX_KIT_RESULTS = 100
 const REPO_URL_REGEXP = /^.+[/:](?<owner>.+)\/(?<repo>.+?)(?:\..+)?$/
 const PULL_HEADER_REGEXP = /\(#(?<pr>\d+)\)$/
 const COMMIT_PARSER_OPTIONS: ParserOptions = {
@@ -37,6 +40,60 @@ export function getPullFromCommit(commit: CommitInfo): number | null {
     }
 
     return null
+}
+
+export async function extractPrCommits(
+    repoInfo: RepoInfo,
+    pr: number,
+    packagePrefix: string,
+    octokit: Octokit
+): Promise<Array<CommitInfo>> {
+    let previouslyFetched = MAX_KIT_RESULTS
+    let pagesFetched = 0
+    const prCommits: Array<CommitInfo> = []
+    while (previouslyFetched === MAX_KIT_RESULTS) {
+        const response = await octokit.rest.pulls.listCommits({
+            ...repoInfo,
+            pull_number: pr,
+            per_page: MAX_KIT_RESULTS,
+            page: pagesFetched + 1,
+        })
+        if (response.status !== 200) {
+            throw new Error(`Could not fetch PR commits. Details: ${response.data}`)
+        }
+        const data = get(response, 'data', [])
+        pagesFetched++
+        previouslyFetched = data.length
+        for (const commit of data) {
+            const sha = commit.sha
+            const originalAuthorName = get(commit.commit.author, 'name', '')
+            const originalCommitterName = get(commit.commit.committer, 'name', '')
+            const authorName = get(commit.author, 'login', originalAuthorName)
+            const committerName = get(commit.committer, 'login', originalCommitterName)
+            const message = commit.commit.message
+            const commitResponse = await octokit.repos.getCommit({
+                ...repoInfo,
+                ref: sha,
+            })
+            if (response.status !== 200) {
+                throw new Error(`Could not fetch commit info. Details: ${response.data}`)
+            }
+            const packageFilesAffected = (commitResponse.data.files || [])
+                .map((file) => file.filename)
+                .some((fileName) => fileName.startsWith(packagePrefix))
+            if (!packageFilesAffected) {
+                continue
+            }
+            prCommits.push({
+                hash: sha,
+                message,
+                author: { name: authorName },
+                committer: { name: committerName },
+            })
+        }
+    }
+
+    return prCommits
 }
 
 export function generateReleaseNotes(
