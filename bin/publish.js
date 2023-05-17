@@ -34,7 +34,7 @@ publish(
         }),
         commitAnalyzer({
             minorTypes: ['feat'],
-            patchTypes: ['perf', 'fix'],
+            patchTypes: ['perf', 'fix', 'chore'],
             breakingNoteKeywords: BREAKING_KEYWORDS,
         }),
         builder,
