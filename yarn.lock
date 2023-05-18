@@ -796,7 +796,7 @@ __metadata:
     rollup: ^3.21.5
     typescript: ^5.0.4
   peerDependencies:
-    mono-pub: "*"
+    mono-pub: 1.x
   languageName: unknown
   linkType: soft
 
@@ -835,7 +835,7 @@ __metadata:
     tmp: ^0.2.1
     typescript: ^5.0.4
   peerDependencies:
-    mono-pub: "*"
+    mono-pub: 1.x
   languageName: unknown
   linkType: soft
 
@@ -856,7 +856,7 @@ __metadata:
     rollup: ^3.21.5
     typescript: ^5.0.4
   peerDependencies:
-    mono-pub: "*"
+    mono-pub: 1.x
   languageName: unknown
   linkType: soft
 
@@ -874,7 +874,7 @@ __metadata:
     tmp: ^0.2.1
     typescript: ^5.0.4
   peerDependencies:
-    mono-pub: "*"
+    mono-pub: 1.x
   languageName: unknown
   linkType: soft
 
