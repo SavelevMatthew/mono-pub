@@ -156,6 +156,8 @@ describe('Tags utils', () => {
         beforeEach(async () => {
             tmpDir = dirSync({ unsafeCleanup: true })
             await execa('git', ['init'], { cwd: tmpDir.name })
+            await execa('git', ['config', 'user.name', 'TestUser'], { cwd: tmpDir.name })
+            await execa('git', ['config', 'user.email', 'example@example.com'], { cwd: tmpDir.name })
             await execa('git', ['branch', '-m', 'main'], { cwd: tmpDir.name })
 
             fs.writeFileSync(

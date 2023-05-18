@@ -39,6 +39,7 @@ describe('Git commit utils', () => {
         tmpDir = dirSync({ unsafeCleanup: true })
         await execa('git', ['init'], { cwd: tmpDir.name })
         await execa('git', ['config', 'user.name', userName], { cwd: tmpDir.name })
+        await execa('git', ['config', 'user.email', 'example@example.com'], { cwd: tmpDir.name })
         fs.mkdirSync(path.join(tmpDir.name, 'packages/pkg1'), { recursive: true })
         fs.writeFileSync(
             path.join(tmpDir.name, 'packages/pkg1', 'package.json'),
