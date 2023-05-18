@@ -9,7 +9,11 @@ const COMMIT_PART = '%B'
 const COMMIT_UNIQUE_SEPARATOR = crypto.randomBytes(20).toString('hex')
 const COMMIT_LOG_FORMAT = `${AUTHOR_COMMIT_PART}%n${COMMITTER_COMMIT_PART}%n${COMMIT_PART}%n%n%n${COMMIT_UNIQUE_SEPARATOR}`
 
-export function parseCommitMessage(formattedMsg: string): CommitInfo {
+/**
+ * Converts message obtained from "git rev-list" command of getAllPackageCommitsInRange to mono-pub format
+ * @param formattedMsg {string} formatted message
+ */
+function parseCommitMessage(formattedMsg: string): CommitInfo {
     const lines = formattedMsg.trim().split('\n')
     const hash = lines[0].split(' ')[1]
     return {
@@ -19,7 +23,11 @@ export function parseCommitMessage(formattedMsg: string): CommitInfo {
         message: lines.slice(3).join('\n').trim(),
     }
 }
-//
+
+/**
+ * Extracts all commit messages in specific range which are related to specific package.
+ * @param options {{pkgInfo: BasePackageInfo, from?: string | null, to: string, cwd: string}}
+ */
 export async function getAllPackageCommitsInRange(options: {
     pkgInfo: BasePackageInfo
     from?: string | null
@@ -45,6 +53,10 @@ export async function getAllPackageCommitsInRange(options: {
         .map(parseCommitMessage)
 }
 
+/**
+ * Extracts all commits which happened from specific tag (if specified) to current HEAD and are related to specific package.
+ * @param options {{pkgInfo: BasePackageInfo, fromTag?: string, cwd: string}}
+ */
 export async function getAllPackageCommits(options: {
     pkgInfo: BasePackageInfo
     fromTag?: string | null

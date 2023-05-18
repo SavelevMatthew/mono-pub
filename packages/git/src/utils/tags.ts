@@ -15,6 +15,12 @@ function _escapeRegex(str: string) {
     return str.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&').replace(/-/g, '\\x2d')
 }
 
+/**
+ * Compares 2 versions (typeof LatestRelease from mono-pub) and determines which one is latest
+ * @param lhs {LatestRelease} - first version (left hand side)
+ * @param rhs {LatestRelease} - second version (right hand side)
+ * @return {LatestRelease} - latest release
+ */
 export function _maxVersion(lhs: LatestRelease, rhs: LatestRelease): LatestRelease {
     if (lhs === null) {
         return rhs
@@ -39,7 +45,8 @@ export function _maxVersion(lhs: LatestRelease, rhs: LatestRelease): LatestRelea
 
 /**
  * Determines if tagFormat is valid. Valid tag format has single {version} and {name} fragment
- * @param tagFormat {string}
+ * @param tagFormat {string} - tag format
+ * @return {boolean} - indicator that tag is valid or not
  */
 export function isValidTagFormat(tagFormat: string) {
     const versionsFound = [...tagFormat.matchAll(VERSION_FIND_REGEXP)].length
@@ -50,8 +57,9 @@ export function isValidTagFormat(tagFormat: string) {
 
 /**
  * Generate regexp, which is used to catch all previous release tags
- * @param packageNames array containing all packages names to catch.
- * @param tagFormat tag format, use {version} and {name} placeholders to generate your own. {name}@{version} by default
+ * @param packageNames {ReadonlyArray<string>} array containing all packages names to catch.
+ * @param [tagFormat] {string} tag format, use {version} and {name} placeholders to generate your own. {name}@{version} by default
+ * @return{RegExp} - regexp for catching tags
  */
 export function getTagRegex(packageNames: ReadonlyArray<string>, tagFormat = DEFAULT_TAG_FORMAT) {
     if (!isValidTagFormat(tagFormat)) {
@@ -76,12 +84,24 @@ export function getTagRegex(packageNames: ReadonlyArray<string>, tagFormat = DEF
     return new RegExp(`^${escapedParts.join('')}$`)
 }
 
+/**
+ * Obtains all merged tags from HEAD revision
+ * @param cwd {string} repository root directory, in most cases - ctx.cwd from mono-pub
+ * @return {Promise<string>} list of merged tags
+ */
 export async function getMergedTags(cwd: string) {
     const { stdout } = await execa('git', ['tag', '--merged'], { cwd })
 
     return stdout.split('\n').map((tag) => tag.trim())
 }
 
+/**
+ * Generates tag regexp to scan package-related tags. Then from matching tags determines latest one for each package.
+ * @param tags {ReadonlyArray<string>}
+ * @param packageNames {ReadonlyArray<string>}
+ * @param [tagFormat] {string}
+ * @return {LatestPackagesReleases} Object, containing latest release for each package. If no tags found for some package - it's key will have null value
+ */
 export function getLatestReleases(
     tags: ReadonlyArray<string>,
     packageNames: ReadonlyArray<string>,
@@ -106,10 +126,25 @@ export function getLatestReleases(
     return result
 }
 
+/**
+ * Generates tag from package name and version by replacing placeholders
+ * @param tagFormat {string} - tag format
+ * @param pkgName {string} - name of package
+ * @param version {PackageVersion} - version of package
+ * @return {string} - resulting tag
+ */
 export function getTagFromVersion(tagFormat: string, pkgName: string, version: PackageVersion) {
     return tagFormat.replace(NAME_PLACEHOLDER, pkgName).replace(VERSION_PLACEHOLDER, versionToString(version))
 }
 
+/**
+ * Generates tag from package name and version, then adds it locally and pushes to remote
+ * @param tagFormat {string} - tag format
+ * @param pkgName {string} - name of package
+ * @param newVersion {PackageVersion} - version of package
+ * @param cwd {string} - repo root, in most cases obtained from mono-pub ctx
+ * @return {Promise<void>}
+ */
 export async function pushNewVersionTag(tagFormat: string, pkgName: string, newVersion: PackageVersion, cwd: string) {
     const newTag = tagFormat
         .replace(NAME_PLACEHOLDER, pkgName)
