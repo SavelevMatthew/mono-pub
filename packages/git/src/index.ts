@@ -71,6 +71,11 @@ export type MonoPubGitConfig = {
     tagFormat?: string
 }
 
+/**
+ * Creates MonoPubGit plugin
+ * @param [config] {Partial<MonoPubGitConfig>}
+ * @return {MonoPubPlugin}
+ */
 export default function git(config: MonoPubGitConfig = {}): MonoPubPlugin {
     return new MonoPubGit(config.tagFormat)
 }

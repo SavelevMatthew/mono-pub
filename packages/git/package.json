@@ -43,7 +43,7 @@
     }
   },
   "peerDependencies": {
-    "mono-pub": "*"
+    "mono-pub": "1.x"
   },
   "devDependencies": {
     "@mono-pub/configs": "workspace:^",
@@ -51,6 +51,7 @@
     "eslint": "^8.39.0",
     "mono-pub": "workspace:^",
     "rollup": "^3.21.5",
+    "tmp": "^0.2.1",
     "typescript": "^5.0.4"
   },
   "dependencies": {

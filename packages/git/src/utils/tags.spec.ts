@@ -1,5 +1,11 @@
-import { getTagRegex, _maxVersion, getLatestReleases } from './tags'
+import execa from 'execa'
+import { dirSync } from 'tmp'
+import fs from 'fs'
+import path from 'path'
+import { getTagRegex, _maxVersion, getLatestReleases, isValidTagFormat, getTagFromVersion, getMergedTags } from './tags'
 import type { ParsedTag, LatestRelease } from '@/types'
+import type { DirResult } from 'tmp'
+import type { PackageVersion } from 'mono-pub'
 
 describe('Tags utils', () => {
     describe('getTagRegex', () => {
@@ -110,6 +116,83 @@ describe('Tags utils', () => {
             expect(latestReleases).toHaveProperty('@scoped/package', { major: 35, minor: 26, patch: 78 })
             expect(latestReleases).toHaveProperty('@scoped/another', { major: 5, minor: 2, patch: 3 })
             expect(latestReleases).toHaveProperty('@another-scope/pkg', null)
+        })
+    })
+    describe('isValidTagFormat', () => {
+        const validTagExamples = ['{name}@{version}', '{name}-v{version}', 'release-{name}@{version}']
+        const invalidTags = [
+            'const-tag',
+            '{name}-only',
+            'only-{version}',
+            'multiple-{name}@{name}@{version}',
+            'multiple-{name}@{version}@{version}',
+        ]
+        describe('Should recognize valid tag formats', () => {
+            it.each(validTagExamples)('%p', (format) => {
+                expect(isValidTagFormat(format)).toBe(true)
+            })
+        })
+        describe('Should return false on invalid tag formats', () => {
+            it.each(invalidTags)('%p', (format) => {
+                expect(isValidTagFormat(format)).toBe(false)
+            })
+        })
+    })
+    describe('getTagFromVersion', () => {
+        describe('Should generate correct tags', () => {
+            const cases: Array<[string, string, string, PackageVersion]> = [
+                ['{name}@{version}', 'pkg@1.2.3', 'pkg', { major: 1, minor: 2, patch: 3 }],
+                ['{name}@{version}', '@scope/pkg@3.2.1', '@scope/pkg', { major: 3, minor: 2, patch: 1 }],
+                ['{name}-v{version}', 'pkg-v1.2.3', 'pkg', { major: 1, minor: 2, patch: 3 }],
+                ['{name}-v{version}', '@scope/pkg-v3.2.1', '@scope/pkg', { major: 3, minor: 2, patch: 1 }],
+            ]
+            it.each(cases)('Format: %p, tag: %p', (format, tag, name, version) => {
+                expect(getTagFromVersion(format, name, version)).toBe(tag)
+            })
+        })
+    })
+    describe('getMergedTags', () => {
+        let tmpDir: DirResult
+        beforeEach(async () => {
+            tmpDir = dirSync({ unsafeCleanup: true })
+            await execa('git', ['init'], { cwd: tmpDir.name })
+            await execa('git', ['config', 'user.name', 'TestUser'], { cwd: tmpDir.name })
+            await execa('git', ['config', 'user.email', 'example@example.com'], { cwd: tmpDir.name })
+            await execa('git', ['branch', '-m', 'main'], { cwd: tmpDir.name })
+
+            fs.writeFileSync(
+                path.join(tmpDir.name, 'package.json'),
+                JSON.stringify({ name: 'pkg', version: '1.0.0' }, null, 2)
+            )
+            await execa('git', ['add', '.'], { cwd: tmpDir.name })
+            await execa('git', ['commit', '-m', 'feat: init tag'], { cwd: tmpDir.name })
+            await execa('git', ['tag', 'my-init-tag'], { cwd: tmpDir.name })
+
+            await execa('git', ['checkout', '-b', 'next'], { cwd: tmpDir.name })
+            fs.writeFileSync(
+                path.join(tmpDir.name, 'package.json'),
+                JSON.stringify({ name: 'pkg', version: '2.0.0' }, null, 2)
+            )
+            await execa('git', ['add', '.'], { cwd: tmpDir.name })
+            await execa('git', ['commit', '-m', 'feat: next tag'], { cwd: tmpDir.name })
+            await execa('git', ['tag', 'my-next-tag'], { cwd: tmpDir.name })
+
+            await execa('git', ['checkout', 'main'], { cwd: tmpDir.name })
+            fs.writeFileSync(
+                path.join(tmpDir.name, 'package.json'),
+                JSON.stringify({ name: 'pkg', version: '1.1.0' }, null, 2)
+            )
+            await execa('git', ['add', '.'], { cwd: tmpDir.name })
+            await execa('git', ['commit', '-m', 'feat: second tag'], { cwd: tmpDir.name })
+            await execa('git', ['tag', 'my-second-tag'], { cwd: tmpDir.name })
+        })
+        afterEach(() => {
+            tmpDir.removeCallback()
+        })
+        it('Should respect branches', async () => {
+            const tags = await getMergedTags(tmpDir.name)
+            expect(tags).toHaveLength(2)
+            expect(tags).toEqual(expect.arrayContaining(['my-init-tag', 'my-second-tag']))
         })
     })
 })

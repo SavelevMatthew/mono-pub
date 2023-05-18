@@ -125,6 +125,11 @@ class MonoPubGithub implements MonoPubPlugin {
     }
 }
 
+/**
+ * Creates MonoPubGithub plugin
+ * @param [config] {Partial<MonoPubGithubConfig>}
+ * @return {MonoPubPlugin}
+ */
 export default function github(config?: Partial<MonoPubGithubConfig>) {
     return new MonoPubGithub(config)
 }
