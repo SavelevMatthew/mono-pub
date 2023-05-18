@@ -79,6 +79,11 @@ class MonoPubNpm implements MonoPubPlugin {
     }
 }
 
+/**
+ * Creates MonoPubNpm plugin
+ * @param [config] {Partial<MonoPubNpmConfig>}
+ * @return {MonoPubPlugin}
+ */
 export default function npm(config?: Partial<MonoPubNpmConfig>) {
     return new MonoPubNpm(config)
 }

@@ -53,6 +53,11 @@ class MonoPubCommitAnalyzer implements MonoPubPlugin {
     }
 }
 
+/**
+ * Creates MonoPubCommitAnalyzer plugin
+ * @param [config] {Partial<CommitAnalyzerConfig>}
+ * @return {MonoPubPlugin}
+ */
 export default function commitAnalyzer(config?: Partial<CommitAnalyzerConfig>) {
     return new MonoPubCommitAnalyzer(config)
 }
