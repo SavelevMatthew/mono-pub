@@ -116,14 +116,14 @@ describe('Git commit utils', () => {
         expectContainingMessages(firstPackageCommits, [firstPackageInitCommit])
     })
     it('should throw on invalid ranges', async () => {
-        expect(
+        await expect(
             getAllPackageCommitsInRange({
                 to: crypto.randomBytes(20).toString('hex'),
                 pkgInfo: firstPackageInfo,
                 cwd: tmpDir.name,
             })
         ).rejects.toThrow()
-        expect(
+        await expect(
             getAllPackageCommitsInRange({
                 from: crypto.randomBytes(20).toString('hex'),
                 to: 'HEAD',
