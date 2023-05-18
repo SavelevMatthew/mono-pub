@@ -43,7 +43,7 @@
     }
   },
   "peerDependencies": {
-    "mono-pub": "*"
+    "mono-pub": "1.x"
   },
   "devDependencies": {
     "@mono-pub/configs": "workspace:^",
