@@ -93,7 +93,7 @@ export class CombinedPlugin implements MonoPubPlugin {
         }
 
         if (!this.analyzer) {
-            logger.error('No plugins with "extractCommits" step found')
+            logger.error('No plugins with "getReleaseType" step found')
             return false
         }
 
