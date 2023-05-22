@@ -22,4 +22,36 @@
     Inspired by <a href="https://github.com/semantic-release/semantic-release">semantic-release</a>
 </p>
 
+## About mono-pub
 
+Mono-pub is a utility that allows you to automatically release JS packages from your CI/CD pipeline.
+
+The release process basically consists of the following steps:
+1. For each package the last published version is determined, 
+as well as the list of commits that happened since the last publication, affecting this package.
+2. Based on these commits, the next version for each package is determined.
+3. A dependency graph is constructed to determine the publication order.
+4. Packages are assembled and published in single or multiple destinations one by one.
+5. After each package is published, the specified side effects are performed 
+(Fixing the published version, generating release-note, sending web-hooks, and any other ideas you have)
+
+## What's the difference from semantic-release?
+
+Mono-pub is focused on mono-repositories. Because of this, there are a number of 
+significant design differences:
+1. **Dependency graph.** It is important to us that packages are **published 
+in the right order**, so we build a dependency graph to determine the order of publication, 
+whereas other popular semantic-release-based forks only run it in multiple threads, 
+which can lead to a situation where the new version of a package is published 
+before its dependency, thereby breaking the installation process.
+2. **Taking the tag creation out of the optional "postPublish" step.** 
+In semantic-release, the creation of a new tag takes place before the package is published. 
+This is not very obvious, allowing you to skip some of the changes in the repositories, 
+where there is constant feature delivery. In Mono-Pub this step happens only after the successful publishing of a package, allowing you to re-run your workflows.
+3. **Working with squash commits.** Often a developer needs to make changes to several packages and applications as part of a single task. 
+This forced either abandoning the squash commit policy to get the history correct, 
+thereby increasing the repository runtime due to the large history, 
+or heavily dodging to make it work with the current solutions. 
+The mono-pub plugins handle this out of the box
+
+## Plugins and publishing workflow
