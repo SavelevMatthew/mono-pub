@@ -134,21 +134,26 @@ describe('Dependencies utils', () => {
     describe('patchPackageDeps', () => {
         it('Should patch package with new version or version from latest release', async () => {
             const deps = await getDependencies([pkg1Info, pkg2Info, pkg3Info])
+            const pkg1LatestRelease = getRandomVersion()
+            const pkg2LatestRelease = getRandomVersion()
+            const pkg3LatestRelease = getRandomVersion()
             const latestReleases: LatestPackagesReleases = {
-                [pkg1Info.name]: getRandomVersion(),
-                [pkg2Info.name]: getRandomVersion(),
-                [pkg3Info.name]: getRandomVersion(),
+                [pkg1Info.name]: pkg1LatestRelease,
+                [pkg2Info.name]: pkg2LatestRelease,
+                [pkg3Info.name]: pkg3LatestRelease,
             }
+            const pkg1NewVersion = getNewVersion(pkg1LatestRelease, 'major') as PackageVersion
+            const pkg3NewVersion = getNewVersion(pkg3LatestRelease, 'patch') as PackageVersion
             const newVersions: LatestPackagesReleases = {
-                [pkg1Info.name]: getNewVersion(latestReleases[pkg1Info.name], 'major'),
-                [pkg3Info.name]: getNewVersion(latestReleases[pkg3Info.name], 'patch'),
+                [pkg1Info.name]: pkg1NewVersion,
+                [pkg3Info.name]: pkg3NewVersion,
             }
             await patchPackageDeps(deps[pkg1Info.name], newVersions, latestReleases)
             const pkg1 = JSON.parse(fs.readFileSync(pkg1Info.location).toString())
             expect(pkg1).toEqual(
                 expect.objectContaining({
                     name: pkg1Info.name,
-                    version: versionToString(newVersions[pkg1Info.name]!),
+                    version: versionToString(pkg1NewVersion),
                 })
             )
             await patchPackageDeps(deps[pkg2Info.name], newVersions, latestReleases)
@@ -156,9 +161,9 @@ describe('Dependencies utils', () => {
             expect(pkg2).toEqual(
                 expect.objectContaining({
                     name: pkg2Info.name,
-                    version: versionToString(latestReleases[pkg2Info.name]!),
+                    version: versionToString(pkg2LatestRelease),
                     dependencies: expect.objectContaining({
-                        [pkg1Info.name]: `^${versionToString(newVersions[pkg1Info.name]!)}`,
+                        [pkg1Info.name]: `^${versionToString(pkg1NewVersion)}`,
                     }),
                 })
             )
@@ -167,12 +172,12 @@ describe('Dependencies utils', () => {
             expect(pkg3).toEqual(
                 expect.objectContaining({
                     name: pkg3Info.name,
-                    version: versionToString(newVersions[pkg3Info.name]!),
+                    version: versionToString(pkg3NewVersion),
                     dependencies: expect.objectContaining({
-                        [pkg1Info.name]: `^${versionToString(newVersions[pkg1Info.name]!)}`,
+                        [pkg1Info.name]: `^${versionToString(pkg1NewVersion)}`,
                     }),
                     devDependencies: expect.objectContaining({
-                        [pkg2Info.name]: `~${versionToString(latestReleases[pkg2Info.name]!)}`,
+                        [pkg2Info.name]: `~${versionToString(pkg2LatestRelease)}`,
                     }),
                 })
             )

@@ -19,11 +19,11 @@ function getEventName(plugin: string, step: string, pkg?: string): string {
 function getFakeVersionGetter(eventLog: Array<string>): MonoPubPlugin {
     return {
         name: faker.string.uuid(),
-        setup(_ctx: MonoPubContext): boolean {
+        setup(): boolean {
             eventLog.push(getEventName(this.name, 'setup'))
             return true
         },
-        getLastRelease(_packages: Array<BasePackageInfo>, _ctx: MonoPubContext): LatestPackagesReleases {
+        getLastRelease(): LatestPackagesReleases {
             eventLog.push(getEventName(this.name, 'getLastRelease'))
             return {}
         },
@@ -33,14 +33,11 @@ function getFakeVersionGetter(eventLog: Array<string>): MonoPubPlugin {
 function getFakeExtractor(eventLog: Array<string>): MonoPubPlugin {
     return {
         name: faker.string.uuid(),
-        async setup(_ctx: MonoPubContext): Promise<boolean> {
+        async setup(): Promise<boolean> {
             eventLog.push(getEventName(this.name, 'setup'))
             return true
         },
-        async extractCommits(
-            packageInfo: PackageInfoWithLatestRelease,
-            _ctx: MonoPubContext
-        ): Promise<Array<CommitInfo>> {
+        async extractCommits(packageInfo: PackageInfoWithLatestRelease): Promise<Array<CommitInfo>> {
             eventLog.push(getEventName(this.name, 'extractCommits', packageInfo.name))
             return []
         },
@@ -50,7 +47,7 @@ function getFakeExtractor(eventLog: Array<string>): MonoPubPlugin {
 function getFakeAnalyzer(eventLog: Array<string>): MonoPubPlugin {
     return {
         name: faker.string.uuid(),
-        getReleaseType(_commits: Array<CommitInfo>, _isDepsChanged: boolean, _ctx: MonoPubContext): ReleaseType {
+        getReleaseType(): ReleaseType {
             eventLog.push(getEventName(this.name, 'getReleaseType'))
             return 'none'
         },
@@ -60,7 +57,7 @@ function getFakeAnalyzer(eventLog: Array<string>): MonoPubPlugin {
 function getFakePreparer(eventLog: Array<string>): MonoPubPlugin {
     return {
         name: faker.string.uuid(),
-        async prepare(_packages: Array<BasePackageInfo>, _ctx: MonoPubContext): Promise<void> {
+        async prepare(): Promise<void> {
             eventLog.push(getEventName(this.name, 'prepare'))
         },
     }
@@ -69,11 +66,11 @@ function getFakePreparer(eventLog: Array<string>): MonoPubPlugin {
 function getFakePublisher(eventLog: Array<string>): MonoPubPlugin {
     return {
         name: faker.string.uuid(),
-        async setup(_ctx: MonoPubContext): Promise<boolean> {
+        async setup(): Promise<boolean> {
             eventLog.push(getEventName(this.name, 'setup'))
             return true
         },
-        async publish(packageInfo: BasePackageInfo, _ctx: MonoPubContext): Promise<void> {
+        async publish(packageInfo: BasePackageInfo): Promise<void> {
             eventLog.push(getEventName(this.name, 'publish', packageInfo.name))
         },
     }
@@ -82,7 +79,7 @@ function getFakePublisher(eventLog: Array<string>): MonoPubPlugin {
 function getFakerPostPublisher(eventLog: Array<string>): MonoPubPlugin {
     return {
         name: faker.string.uuid(),
-        postPublish(packageInfo: ReleasedPackageInfo, _ctx: MonoPubContext): void {
+        postPublish(packageInfo: ReleasedPackageInfo): void {
             eventLog.push(getEventName(this.name, 'postPublish', packageInfo.name))
         },
     }
@@ -138,7 +135,7 @@ describe('CombinedPlugin', () => {
         it('Should fail setup if one of plugins failed', async () => {
             const broken: MonoPubPlugin = {
                 name: faker.string.uuid(),
-                setup(_ctx: MonoPubContext): boolean {
+                setup(): boolean {
                     eventLog.push(getEventName(this.name, 'setup'))
                     return false
                 },
@@ -221,7 +218,7 @@ describe('CombinedPlugin', () => {
             expect(combined.versionGetter).toEqual(chain.getter)
             await combined.getLastRelease([], ctx)
             const stepLog = eventLog.filter((event) => event.includes('getLastRelease'))
-            expect(stepLog).toEqual([getEventName(combined.versionGetter!.name, 'getLastRelease')])
+            expect(stepLog).toEqual([getEventName(chain.getter.name, 'getLastRelease')])
         })
         it('extractCommits', async () => {
             const combined = new CombinedPlugin(chain.all())
@@ -231,16 +228,16 @@ describe('CombinedPlugin', () => {
             const packageName = faker.string.alpha({ length: 20 })
             await combined.extractCommits({ name: packageName, location: process.cwd(), latestRelease: null }, ctx)
             const stepLog = eventLog.filter((event) => event.includes('extractCommits'))
-            expect(stepLog).toEqual([getEventName(combined.extractor!.name, 'extractCommits', packageName)])
+            expect(stepLog).toEqual([getEventName(chain.extractor.name, 'extractCommits', packageName)])
         })
-        it('extractCommits', async () => {
+        it('getReleaseType', async () => {
             const combined = new CombinedPlugin(chain.all())
             const setupSuccess = await combined.setup(ctx)
             expect(setupSuccess).toBe(true)
             expect(combined.analyzer).toEqual(chain.analyzer)
             await combined.getReleaseType([], false, ctx)
             const stepLog = eventLog.filter((event) => event.includes('getReleaseType'))
-            expect(stepLog).toEqual([getEventName(combined.analyzer!.name, 'getReleaseType')])
+            expect(stepLog).toEqual([getEventName(chain.analyzer.name, 'getReleaseType')])
         })
         it('prepare', async () => {
             const combined = new CombinedPlugin(chain.all())
