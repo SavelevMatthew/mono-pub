@@ -52,6 +52,129 @@ where there is constant feature delivery. In Mono-Pub this step happens only aft
 This forced either abandoning the squash commit policy to get the history correct, 
 thereby increasing the repository runtime due to the large history, 
 or heavily dodging to make it work with the current solutions. 
-The mono-pub plugins handle this out of the box
+The mono-pub plugins handle this out of the box (See [`@mono-pub/github`](https://github.com/SavelevMatthew/mono-pub/tree/main/packages/github) for example)
 
-## Plugins and publishing workflow
+## About plugins and publishing workflow
+
+We divide the publishing process into several steps, 
+allowing you to control most of the process yourself through pre-made plugins or using your own.
+
+| Step             | Description                                                                                                                                              |
+|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Setup            | Sets up the plugin, checks all the conditions necessary for work.                                                                                        |
+| Get Last Release | Obtains latest released version for each package (Usually from tags analysis)                                                                            |
+| Extract commits  | Extracts commits relevant to specific package that happened since last release                                                                           |
+| Get Release Type | Based on the received data and updated dependencies,  calculates the release type according to semantic versioning                                       |
+| Prepare          | Performs any action that prepares all packages for publication after all versions are patched  (You can build packages here, omit devDeps, you name it). |
+| Publish          | Publishes individual package to destination                                                                                                              |
+| Post-Publish     | Performs any actions on successful publishing  (You can generate new tag, publish release notes, send web hooks and every other side effect here)        |
+
+> All plugins must implement MonoPubPlugin interface, containing plugin name and implementation of one or more specified steps.
+> Detailed interface description can be found [here](https://github.com/SavelevMatthew/mono-pub/blob/main/packages/mono-pub/src/types/plugins.ts) 
+> or can be directly imported from package:
+
+```typescript
+import { MonoPubPlugin } from 'mono-pub'
+```
+
+## List of popular plugins
+
+- [`@mono-pub/git`](https://github.com/SavelevMatthew/mono-pub/tree/main/packages/git) -
+  Searches the last git tag for each package and finds commits affecting that package. 
+Publishes a new tag after it has been published.
+- [`@mono-pub/github`](https://github.com/SavelevMatthew/mono-pub/tree/main/packages/github) -
+  Responsible for interacting with the Github: it can fetch commits from PR (in case of squash) 
+, generate and publish release notes afterward via [conventional-commits-parser](https://www.npmjs.com/package/conventional-commits-parser). Used on top of `@mono-pub/git`.
+- [`@mono-pub/commit-analyzer`](https://github.com/SavelevMatthew/mono-pub/tree/main/packages/commit-analyzer) -
+ Parses commits via [conventional-commits-parser](https://www.npmjs.com/package/conventional-commits-parser) 
+and determines next release version
+- [`@mono-pub/npm`](https://github.com/SavelevMatthew/mono-pub/tree/main/packages/npm) - 
+ Publishes packages to npm registry
+
+
+## Basic usage examples
+
+Below is a basic example of publishing packages to the standard npm registry 
+from the Git repository. Note, that all packages here are built via [turbo](https://github.com/vercel/turbo) before publishing: 
+
+```javascript
+const execa = require('execa')
+const publish = require('mono-pub')
+const git = require('@mono-pub/git')
+const npm = require('@mono-pub/npm')
+const commitAnalyzer = require('@mono-pub/commit-analyzer')
+
+const builder = {
+    name: '@mono-pub/local-builder',
+    async prepare(_, ctx) {
+        await execa('yarn', ['build'], { cwd: ctx.cwd })
+    },
+}
+
+publish(
+    ['packages/*'],
+    [
+        git(),
+        commitAnalyzer(),
+        builder,
+        npm(),
+    ]
+)
+
+```
+
+And there's advanced example. 
+
+[`@mono-pub/github`](https://github.com/SavelevMatthew/mono-pub/tree/main/packages/github) 
+is responsible for replacing commits with PR mentioned in header via standard github squash rule  (ends with `(#123)`) 
+with original PR commits (only commits affecting package is picked). It's also publish release notes in `postPublish` step.
+
+[`@mono-pub/npm`](https://github.com/SavelevMatthew/mono-pub/tree/main/packages/npm) is used with `provenance` option, which can sign your publication, 
+when used in GitHub Actions CI.
+
+```javascript
+const execa = require('execa')
+const publish = require('mono-pub')
+const git = require('@mono-pub/git')
+const github = require('@mono-pub/github')
+const npm = require('@mono-pub/npm')
+const commitAnalyzer = require('@mono-pub/commit-analyzer')
+
+const builder = {
+    name: '@mono-pub/local-builder',
+    async prepare(_, ctx) {
+        await execa('yarn', ['build'], { cwd: ctx.cwd })
+    },
+}
+
+const BREAKING_KEYWORDS = ['BREAKING CHANGE', 'BREAKING-CHANGE', 'BREAKING CHANGES', 'BREAKING-CHANGES']
+
+publish(
+    ['packages/*'],
+    [
+        git(),
+        github({
+            extractCommitsFromSquashed: true,
+            releaseNotesOptions: {
+                rules: [
+                    { breaking: true, section: '⚠️ BREAKING CHANGES' },
+                    { type: 'feat', section: '🦕 New features' },
+                    { type: 'fix', section: '🐞 Bug fixes' },
+                    { type: 'perf', section: '🚀 Performance increases' },
+                    { dependency: true, section: '🌐Dependencies' },
+                ],
+                breakingNoteKeywords: BREAKING_KEYWORDS,
+            },
+        }),
+        commitAnalyzer({
+            minorTypes: ['feat'],
+            patchTypes: ['perf', 'fix'],
+            breakingNoteKeywords: BREAKING_KEYWORDS,
+        }),
+        builder,
+        npm({ provenance: true }),
+    ]
+)
+
+```
+
