@@ -8,8 +8,8 @@
     "directory": "packages/configs"
   },
   "files": [
-    "eslint.mjs",
-    "rollup.mjs",
+    "eslint.js",
+    "rollup.js",
     "tsconfig.json"
   ],
   "exports": {
