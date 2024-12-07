@@ -83,7 +83,7 @@ jobs:
 
       - name: Run semgrep scan
         run: |
-          semgrep scan --metrics off --config auto
+          semgrep scan --config auto
 
   build:
     name: Build and Test packages
