@@ -32,6 +32,10 @@ jobs:
       - name: Install dependencies
         run: yarn --immutable
 
+        # NOTE: Mono-pub uses itself to publish its packages, so we need to prebuild them
+      - name: Build packages
+        run: yarn build
+
       - name: Run publish script
         run: node bin/publish.js
         env:
