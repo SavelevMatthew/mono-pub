@@ -4,8 +4,8 @@
     <a href="https://www.npmjs.com/package/mono-pub">
         <img alt="npm" src="https://img.shields.io/npm/v/mono-pub?logo=npm&logoColor=white&style=flat-square">
     </a>
-    <a href="https://github.com/SavelevMatthew/mono-pub/actions/workflows/test.yml?query=branch%3Amain">
-        <img alt="GitHub Workflow Status (with branch)" src="https://img.shields.io/github/actions/workflow/status/SavelevMatthew/mono-pub/test.yml?branch=main&label=test&logo=github&style=flat-square">
+    <a href="https://github.com/SavelevMatthew/mono-pub/actions/workflows/nodejs.packages.ci.yml">
+        <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/SavelevMatthew/mono-pub/nodejs.packages.ci.yml?branch=main&style=flat-square&logo=github&label=test">
     </a>
     <a href="https://github.com/SavelevMatthew/mono-pub/discussions">
         <img alt="Join the community on GitHub Discussions" src="https://img.shields.io/badge/Join%20the%20community-on%20GitHub%20Discussions-blue?style=flat-square">
