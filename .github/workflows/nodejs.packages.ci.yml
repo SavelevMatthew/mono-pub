@@ -8,13 +8,13 @@ on:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint the code
 
     runs-on: ubuntu-22.04
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 22.x]
+        node-version: [ 22.x ]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases
 
     steps:
@@ -33,8 +33,35 @@ jobs:
       - name: Lint the code
         run: yarn lint
 
+  audit:
+    name: Audit the code
+
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        node-version: [ 22.x ]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn --immutable
+
+      - name: Run dependencies audit
+        run: yarn npm audit --all
+
+
   build:
-    name: Build and Test
+    name: Build and Test packages
 
     runs-on: ubuntu-22.04
 
