@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 export SEMGREP_RULES="
 p/default
 p/javascript
