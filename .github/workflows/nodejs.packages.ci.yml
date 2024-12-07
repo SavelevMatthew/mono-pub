@@ -82,8 +82,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run semgrep scan
-        run: |
-          semgrep ci --config auto
+        run: ./bin/run-semgrep.sh
 
   build:
     name: Build and Test packages
