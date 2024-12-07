@@ -81,8 +81,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run code audit
-        run: ./bin/run-semgrep.sh -a
+      - name: Run semgrep scan
+        run: |
+          semgrep scan --metrics off --config auto
 
   build:
     name: Build and Test packages
