@@ -12,11 +12,6 @@ jobs:
 
     runs-on: ubuntu-22.04
 
-    strategy:
-      matrix:
-        node-version: [ 22.x ]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,7 +19,6 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
       - name: Install dependencies
@@ -38,11 +32,6 @@ jobs:
 
     runs-on: ubuntu-22.04
 
-    strategy:
-      matrix:
-        node-version: [ 22.x ]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -50,7 +39,6 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
       - name: Install dependencies
