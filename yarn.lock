@@ -800,7 +800,7 @@ __metadata:
     conventional-commits-parser: ^3.2.4
     eslint: ^8.39.0
     mono-pub: "workspace:^"
-    rollup: ^3.21.5
+    rollup: ^3.29.5
     typescript: ^5.0.4
   peerDependencies:
     mono-pub: 1.x
@@ -838,7 +838,7 @@ __metadata:
     eslint: ^8.39.0
     execa: ^5
     mono-pub: "workspace:^"
-    rollup: ^3.21.5
+    rollup: ^3.29.5
     tmp: ^0.2.1
     typescript: ^5.0.4
   peerDependencies:
@@ -860,7 +860,7 @@ __metadata:
     eslint: ^8.39.0
     lodash: ^4.17.21
     mono-pub: "workspace:^"
-    rollup: ^3.21.5
+    rollup: ^3.29.5
     typescript: ^5.0.4
   peerDependencies:
     mono-pub: 1.x
@@ -877,7 +877,7 @@ __metadata:
     eslint: ^8.39.0
     execa: ^5
     mono-pub: "workspace:^"
-    rollup: ^3.21.5
+    rollup: ^3.29.5
     tmp: ^0.2.1
     typescript: ^5.0.4
   peerDependencies:
@@ -4752,7 +4752,7 @@ __metadata:
     eslint: ^8.39.0
     glob: ^10.2.2
     lodash: ^4.17.21
-    rollup: ^3.21.5
+    rollup: ^3.29.5
     signale: ^1.4.0
     tmp: ^0.2.1
     tslib: ^2.5.0
@@ -5484,9 +5484,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:^3.21.5":
-  version: 3.21.5
-  resolution: "rollup@npm:3.21.5"
+"rollup@npm:^3.29.5":
+  version: 3.29.5
+  resolution: "rollup@npm:3.29.5"
   dependencies:
     fsevents: ~2.3.2
   dependenciesMeta:
@@ -5494,7 +5494,7 @@ __metadata:
       optional: true
   bin:
     rollup: dist/bin/rollup
-  checksum: dfe2e4002fbfbc0a67591595f137c23082c639b1a790854ebe8611264b945e77caaf8c8ec9365faf9580f5df9cb9a954915443df020dc2ee391c477659484cf0
+  checksum: 6f8304e58ac8170a715e61e46c4aa674b2ae2587ed2a712dab58f72e5e54803ae40b485fbe6b3e6a694f4c8f7a59ab936ccf9f6b686c7cfd1f1970fa9ecadf1a
   languageName: node
   linkType: hard
 
