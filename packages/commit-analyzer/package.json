@@ -32,7 +32,7 @@
     "@types/conventional-commits-parser": "^3.0.3",
     "eslint": "^8.39.0",
     "mono-pub": "workspace:^",
-    "rollup": "^3.21.5",
+    "rollup": "^3.29.5",
     "typescript": "^5.0.4"
   },
   "dependencies": {

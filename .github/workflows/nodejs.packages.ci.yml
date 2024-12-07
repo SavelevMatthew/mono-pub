@@ -1,0 +1,90 @@
+name: Mono-pub CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  lint:
+    name: Lint the code
+
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        node-version: [ 22.x ]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn --immutable
+
+      - name: Lint the code
+        run: yarn lint
+
+  audit:
+    name: Audit the code
+
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        node-version: [ 22.x ]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn --immutable
+
+      - name: Run dependencies audit
+        run: yarn npm audit --all
+
+
+  build:
+    name: Build and Test packages
+
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        node-version: [ 18.x, 20.x, 22.x ]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn --immutable
+
+      - name: Build the repo
+        run: yarn build
+
+      - name: Run tests
+        run: yarn test

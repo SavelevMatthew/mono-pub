@@ -82,7 +82,7 @@ allowing you to control most of the process yourself through pre-made plugins or
 > or can be directly imported from package:
 
 ```typescript
-import { MonoPubPlugin } from 'mono-pub'
+import type { MonoPubPlugin } from 'mono-pub'
 ```
 
 ## List of popular plugins
