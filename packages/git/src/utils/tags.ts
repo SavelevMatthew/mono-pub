@@ -81,6 +81,8 @@ export function getTagRegex(packageNames: ReadonlyArray<string>, tagFormat = DEF
         }
     })
 
+    // NOTE: Regexp is escaped, so its not possible to create ReDOS
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
     return new RegExp(`^${escapedParts.join('')}$`)
 }
 

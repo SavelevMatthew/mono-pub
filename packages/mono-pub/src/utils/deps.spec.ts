@@ -9,7 +9,9 @@ import type { DirResult } from 'tmp'
 import type { BasePackageInfo, LatestPackagesReleases, PackageVersion } from '@/types'
 
 function writePackageJson(obj: Record<string, unknown>, packagePath: string, cwd: string) {
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     fs.mkdirSync(path.join(cwd, packagePath), { recursive: true })
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     fs.writeFileSync(path.join(cwd, packagePath, 'package.json'), JSON.stringify(obj, null, 2))
 }
 

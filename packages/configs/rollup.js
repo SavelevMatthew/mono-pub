@@ -71,6 +71,8 @@ function typePipe(input, output, opts = {}) {
                 entries: [
                     {
                         find: '@',
+                        // NOTE: Part of logic
+                        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                         replacement: path.resolve('./dist/dts', opts.typesDir || '.'),
                     },
                 ],

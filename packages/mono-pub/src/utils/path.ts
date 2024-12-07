@@ -29,6 +29,8 @@ export async function getAllPackages(paths: Array<string>, cwd: string): Promise
             fileNames.push(match.fullpath())
         } else if (match.isDirectory()) {
             const fullPath = match.fullpath()
+            // NOTE: Repo traversal is a part of package logic
+            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
             const pkgPath = path.join(fullPath, 'package.json')
             if (fs.existsSync(pkgPath)) {
                 fileNames.push(pkgPath)
