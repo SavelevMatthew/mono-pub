@@ -8,14 +8,9 @@ on:
 
 jobs:
   lint:
-    name: Lint the code
+    name: Lint code
 
     runs-on: ubuntu-22.04
-
-    strategy:
-      matrix:
-        node-version: [ 22.x ]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases
 
     steps:
       - name: Checkout code
@@ -24,24 +19,18 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
       - name: Install dependencies
         run: yarn --immutable
 
-      - name: Lint the code
+      - name: Lint source code
         run: yarn lint
 
   audit:
-    name: Audit the code
+    name: Audit dependencies
 
     runs-on: ubuntu-22.04
-
-    strategy:
-      matrix:
-        node-version: [ 22.x ]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases
 
     steps:
       - name: Checkout code
@@ -50,7 +39,6 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
       - name: Install dependencies
@@ -59,6 +47,25 @@ jobs:
       - name: Run dependencies audit
         run: yarn npm audit --all
 
+  semgrep:
+    name: Audit source code
+
+    runs-on: ubuntu-22.04
+
+    container:
+      image: semgrep/semgrep
+
+    if: (github.actor != 'dependabot[bot]')
+
+    permissions:
+      security-events: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run semgrep scan
+        run: ./bin/run-semgrep.sh
 
   build:
     name: Build and Test packages
@@ -83,7 +90,7 @@ jobs:
       - name: Install dependencies
         run: yarn --immutable
 
-      - name: Build the repo
+      - name: Build repo
         run: yarn build
 
       - name: Run tests
