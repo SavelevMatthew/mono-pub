@@ -1,11 +1,11 @@
-import { glob } from 'glob'
 import path from 'path'
-import uniq from 'lodash/uniq'
 import fs, { promises as fsPromises } from 'fs'
+import { glob } from 'glob'
+import uniq from 'lodash/uniq'
 import get from 'lodash/get'
 import type { BasePackageInfo } from '@/types'
 
-type PackageScanInfo = {
+interface PackageScanInfo {
     name: string | null
     private: boolean
 }

@@ -1,4 +1,3 @@
-import { name } from '../package.json'
 import {
     NAME_PLACEHOLDER,
     VERSION_PLACEHOLDER,
@@ -11,6 +10,7 @@ import {
 } from '@/utils/tags'
 import { getAllPackageCommits } from '@/utils/commits'
 import { getOriginUrl } from '@/utils/branches'
+import { name } from '../package.json'
 import type {
     BasePackageInfo,
     CommitInfo,

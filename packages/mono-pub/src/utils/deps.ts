@@ -89,7 +89,7 @@ export async function patchPackageDeps(
 
     for (const dep of pkg.dependsOn) {
         const depsGroup = dep.type === 'dep' ? 'dependencies' : 'devDependencies'
-        const depVersion = newVersions[dep.name] || latestReleases[dep.name]
+        const depVersion = newVersions[dep.name] ?? latestReleases[dep.name]
         if (!depVersion) {
             throw new TypeError(
                 `Unable to patch package dependency ("${dep.name}"), since it has no previous versions and relevant changes`

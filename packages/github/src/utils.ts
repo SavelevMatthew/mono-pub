@@ -21,22 +21,22 @@ export type RepoInfo = {
 }
 
 export function extractRepoFromOriginUrl(repoUrl: string): RepoInfo | null {
-    const match = repoUrl.match(REPO_URL_REGEXP)
-    if (!match || !match.groups) {
+    const match = REPO_URL_REGEXP.exec(repoUrl)
+    if (!match?.groups) {
         return null
     }
 
     return {
-        owner: match.groups['owner'],
-        repo: match.groups['repo'],
+        owner: match.groups.owner,
+        repo: match.groups.repo,
     }
 }
 
 export function getPullFromCommit(commit: CommitInfo): number | null {
     const header = commit.message.split('\n')[0].trim()
-    const match = header.match(PULL_HEADER_REGEXP)
-    if (match && match.groups) {
-        return parseInt(match.groups['pr'])
+    const match = PULL_HEADER_REGEXP.exec(header)
+    if (match?.groups) {
+        return parseInt(match.groups.pr)
     }
 
     return null
@@ -78,7 +78,7 @@ export async function extractPrCommits(
             if (response.status !== 200) {
                 throw new Error(`Could not fetch commit info. Details: ${response.data}`)
             }
-            const packageFilesAffected = (commitResponse.data.files || [])
+            const packageFilesAffected = (commitResponse.data.files ?? [])
                 .map((file) => file.filename)
                 .some((fileName) => fileName.startsWith(packagePrefix))
             if (!packageFilesAffected) {
@@ -164,7 +164,7 @@ export function generateReleaseNotes(
             continue
         }
         const notes = sections[rule.section]
-        if (!notes || !notes.length) {
+        if (!notes?.length) {
             continue
         }
         lines.push(`### ${rule.section}`)

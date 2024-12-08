@@ -48,7 +48,7 @@
   "devDependencies": {
     "@mono-pub/configs": "workspace:^",
     "@rushstack/eslint-patch": "^1.2.0",
-    "eslint": "^8.39.0",
+    "eslint": "^9.16.0",
     "mono-pub": "workspace:^",
     "rollup": "^3.29.5",
     "tmp": "^0.2.1",

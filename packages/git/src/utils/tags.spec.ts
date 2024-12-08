@@ -1,7 +1,7 @@
-import execa from 'execa'
-import { dirSync } from 'tmp'
 import fs from 'fs'
 import path from 'path'
+import execa from 'execa'
+import { dirSync } from 'tmp'
 import { getTagRegex, _maxVersion, getLatestReleases, isValidTagFormat, getTagFromVersion, getMergedTags } from './tags'
 import type { ParsedTag, LatestRelease } from '@/types'
 import type { DirResult } from 'tmp'
@@ -62,7 +62,7 @@ describe('Tags utils', () => {
                 const matchingTags: Array<ParsedTag> = []
                 for (const tag of tags) {
                     const match = tag.match(tagRegex)
-                    if (match && match.groups) {
+                    if (match?.groups) {
                         expect(match.groups).toBeDefined()
                         expect(match.groups).toHaveProperty('package')
                         expect(match.groups).toHaveProperty('major')

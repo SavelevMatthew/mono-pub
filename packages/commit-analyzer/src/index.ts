@@ -1,7 +1,7 @@
-import { name } from '../package.json'
 import { sync as syncParser } from 'conventional-commits-parser'
 import { DEFAULT_CONFIG } from '@/config'
 import { getMostImportantType } from '@/utils'
+import { name } from '../package.json'
 import type { CommitAnalyzerConfig } from '@/config'
 import type { Options as ParserOptions } from 'conventional-commits-parser'
 import type { CommitInfo, MonoPubPlugin, ReleaseType } from 'mono-pub'
