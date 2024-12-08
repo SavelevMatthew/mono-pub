@@ -63,13 +63,13 @@ describe('commitAnalyzer', () => {
             })
         })
         describe('Should respect custom config options', () => {
-            test('Custom major types', () => {
+            it('Custom major types', () => {
                 const analyzer = commitAnalyzer({ majorTypes: ['breaking'] })
                 const message = 'breaking(scope): this commit should trigger major release'
                 const releaseType = analyzer.getReleaseType([generateCommit(message)], false)
                 expect(releaseType).toBe('major')
             })
-            test('Custom minor types', () => {
+            it('Custom minor types', () => {
                 const analyzer = commitAnalyzer({ minorTypes: ['minor'] })
                 const featReleaseType = analyzer.getReleaseType([generateCommit(minorCommitMessage)], false)
                 expect(featReleaseType).toBe('none')
@@ -77,7 +77,7 @@ describe('commitAnalyzer', () => {
                 const releaseType = analyzer.getReleaseType([generateCommit(message)], false)
                 expect(releaseType).toBe('minor')
             })
-            test('Custom patch types', () => {
+            it('Custom patch types', () => {
                 const analyzer = commitAnalyzer({ patchTypes: ['security'] })
                 const fixReleaseType = analyzer.getReleaseType([generateCommit(patchCommitMessage)], false)
                 expect(fixReleaseType).toBe('none')
@@ -85,7 +85,7 @@ describe('commitAnalyzer', () => {
                 const releaseType = analyzer.getReleaseType([generateCommit(message)], false)
                 expect(releaseType).toBe('patch')
             })
-            test('Custom breaking notes title', () => {
+            it('Custom breaking notes title', () => {
                 const analyzer = commitAnalyzer({ breakingNoteKeywords: ['Oopsie'] })
                 const defaultReleaseType = analyzer.getReleaseType([generateCommit(breakingNoteMessage)], false)
                 expect(defaultReleaseType).toBe('minor')
@@ -94,7 +94,7 @@ describe('commitAnalyzer', () => {
                 const releaseType = analyzer.getReleaseType([generateCommit(message)], false)
                 expect(releaseType).toBe('major')
             })
-            test('Custom dependencies release type', () => {
+            it('Custom dependencies release type', () => {
                 const analyzer = commitAnalyzer({ depsBumpReleaseType: 'minor' })
                 const releaseType = analyzer.getReleaseType([generateCommit(skipCommitMessage)], true)
                 expect(releaseType).toBe('minor')

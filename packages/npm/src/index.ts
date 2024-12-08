@@ -1,12 +1,12 @@
-import { name } from '../package.json'
-import execa from 'execa'
-import { dirSync, setGracefulCleanup } from 'tmp'
 import fs from 'fs'
 import path from 'path'
+import execa from 'execa'
+import { dirSync, setGracefulCleanup } from 'tmp'
+import { name } from '../package.json'
 
 import type { MonoPubPlugin, MonoPubContext, BasePackageInfo } from 'mono-pub'
 
-type MonoPubNpmConfig = {
+interface MonoPubNpmConfig {
     envTokenKey: string
     distTag: string
     dryRun: boolean
@@ -56,7 +56,7 @@ class MonoPubNpm implements MonoPubPlugin {
                     env: { NPM_TOKEN: npmToken },
                 }
             )
-        } catch (err) {
+        } catch {
             ctx.logger.error('Invalid NPM auth token was provided!')
             return false
         }

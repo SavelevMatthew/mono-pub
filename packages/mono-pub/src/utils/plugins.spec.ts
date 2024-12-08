@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
-import { CombinedPlugin } from './plugins'
 import getLogger from '../logger'
+import { CombinedPlugin } from './plugins'
 import type {
     MonoPubPlugin,
     MonoPubContext,
@@ -85,7 +85,7 @@ function getFakerPostPublisher(eventLog: Array<string>): MonoPubPlugin {
     }
 }
 
-type ReleaseChain = {
+interface ReleaseChain {
     getter: MonoPubPlugin
     analyzer: MonoPubPlugin
     extractor: MonoPubPlugin

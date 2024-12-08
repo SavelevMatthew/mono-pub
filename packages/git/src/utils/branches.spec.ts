@@ -1,6 +1,6 @@
-import { getOriginUrl } from '@/utils/branches'
 import { dirSync } from 'tmp'
 import execa from 'execa'
+import { getOriginUrl } from '@/utils/branches'
 import type { DirResult } from 'tmp'
 
 describe('getOriginUrl', () => {

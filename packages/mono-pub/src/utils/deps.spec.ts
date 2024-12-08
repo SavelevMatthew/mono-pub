@@ -144,8 +144,8 @@ describe('Dependencies utils', () => {
                 [pkg2Info.name]: pkg2LatestRelease,
                 [pkg3Info.name]: pkg3LatestRelease,
             }
-            const pkg1NewVersion = getNewVersion(pkg1LatestRelease, 'major') as PackageVersion
-            const pkg3NewVersion = getNewVersion(pkg3LatestRelease, 'patch') as PackageVersion
+            const pkg1NewVersion = getNewVersion(pkg1LatestRelease, 'major')!
+            const pkg3NewVersion = getNewVersion(pkg3LatestRelease, 'patch')!
             const newVersions: LatestPackagesReleases = {
                 [pkg1Info.name]: pkg1NewVersion,
                 [pkg3Info.name]: pkg3NewVersion,

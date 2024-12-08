@@ -7,10 +7,7 @@ export function versionToString(version: PackageVersion): string {
     return `${version.major}.${version.minor}.${version.patch}`
 }
 
-export function getNewVersion<T extends ReleaseType>(
-    latestRelease: LatestReleasedVersion,
-    releaseType: T
-): LatestReleasedVersion {
+export function getNewVersion(latestRelease: LatestReleasedVersion, releaseType: ReleaseType): LatestReleasedVersion {
     if (releaseType === 'none') {
         return latestRelease
     } else if (!latestRelease) {

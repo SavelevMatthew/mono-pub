@@ -47,7 +47,7 @@ export class CombinedPlugin implements MonoPubPlugin {
         for (const plugin of this.allPlugins) {
             logger.log(`Scanning ${plugin.name} plugin`)
 
-            if (plugin && plugin.setup) {
+            if (plugin.setup) {
                 logger.log(this._getStepMessage('setup', plugin))
                 this.neededSetup.push(plugin as WithSetup)
             }

@@ -114,7 +114,7 @@ export function getLatestReleases(
 
     for (const tag of tags) {
         const match = tag.match(tagRegex)
-        if (match && match.groups) {
+        if (match?.groups) {
             const packageName = match.groups.package
             const release: PackageVersion = {
                 major: parseInt(match.groups.major),
