@@ -1,6 +1,7 @@
 import path from 'path'
 import { lstatSync, existsSync } from 'fs'
 import { defineConfig } from 'tsup'
+import fixCjsExports from 'tsup-fix-cjs-exports'
 
 const ALLOWED_EXTENSIONS = ['.ts']
 
@@ -30,7 +31,9 @@ export function createBuildPipeline(exports) {
         sourcemap: true,
         format: ['cjs', 'esm'],
         target: 'node16',
-        minify: true,
+        minify: false,
         splitting: false,
+        cjsInterop: true,
+        plugins: [fixCjsExports()],
     })
 }

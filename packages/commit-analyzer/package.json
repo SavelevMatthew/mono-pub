@@ -9,7 +9,7 @@
   },
   "scripts": {
     "lint": "eslint src && prettier --check src",
-    "build": "tsup"
+    "build": "tsup && fix-tsup-cjs"
   },
   "author": {
     "name": "Matthew Savelev",
@@ -34,8 +34,9 @@
     "@mono-pub/configs": "workspace:^",
     "@types/conventional-commits-parser": "^3.0.3",
     "eslint": "^9.16.0",
+    "fix-tsup-cjs": "^1.2.0",
     "mono-pub": "workspace:^",
-    "tsup": "^8.3.5",
+    "tsup": "8.3.5",
     "typescript": "^5.7.2"
   },
   "dependencies": {
