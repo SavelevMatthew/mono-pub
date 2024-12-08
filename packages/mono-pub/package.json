@@ -24,7 +24,7 @@
     "url": "https://github.com/SavelevMatthew"
   },
   "scripts": {
-    "build": "rollup -c",
+    "build": "tsup",
     "lint": "eslint src && prettier --check src"
   },
   "license": "MIT",
@@ -43,14 +43,14 @@
   },
   "exports": {
     ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
     },
     "./utils": {
-      "require": "./dist/utils.cjs",
-      "import": "./dist/utils.mjs",
-      "types": "./dist/utils.d.ts"
+      "types": "./dist/utils/index.d.ts",
+      "require": "./dist/utils/index.js",
+      "import": "./dist/utils/index.mjs"
     }
   },
   "devDependencies": {
@@ -59,9 +59,9 @@
     "@types/lodash": "^4.14.194",
     "@types/signale": "^1.4.4",
     "eslint": "^9.16.0",
-    "rollup": "^3.29.5",
     "tmp": "^0.2.1",
     "tslib": "^2.5.0",
+    "tsup": "^8.3.5",
     "typescript": "^5.0.4"
   },
   "dependencies": {

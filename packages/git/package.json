@@ -9,7 +9,7 @@
   },
   "scripts": {
     "lint": "eslint src && prettier --check src",
-    "build": "rollup -c"
+    "build": "tsup"
   },
   "author": {
     "name": "Matthew Savelev",
@@ -32,14 +32,14 @@
   },
   "exports": {
     ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.mjs",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
     },
     "./utils": {
-      "require": "./dist/utils.cjs",
-      "import": "./dist/utils.mjs",
-      "types": "./dist/utils.d.ts"
+      "types": "./dist/utils/index.d.ts",
+      "require": "./dist/utils/index.js",
+      "import": "./dist/utils/index.mjs"
     }
   },
   "peerDependencies": {
@@ -49,8 +49,8 @@
     "@mono-pub/configs": "workspace:^",
     "eslint": "^9.16.0",
     "mono-pub": "workspace:^",
-    "rollup": "^3.29.5",
     "tmp": "^0.2.1",
+    "tsup": "^8.3.5",
     "typescript": "^5.0.4"
   },
   "dependencies": {
