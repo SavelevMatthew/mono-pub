@@ -141,6 +141,10 @@ To publish packages just run it from your CI/CD provider. For example, GitHub Ac
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```
 
+> **NOTE**: @mono-pub/git like semantic-release uses tags to define versions. 
+> So make sure the tags are locally accessible when running the `publish` script.
+> You can achieve it by passing `fetch-depth: 0` to `actions/checkout` or by running `git fetch --tags` separately
+
 And there's advanced example. 
 
 [`@mono-pub/github`](https://github.com/SavelevMatthew/mono-pub/tree/main/packages/github) 
