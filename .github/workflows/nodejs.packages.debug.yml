@@ -1,0 +1,36 @@
+name: Publish NPM packages
+
+permissions:
+  contents: write
+  id-token: write
+
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn --immutable
+
+        # NOTE: Mono-pub uses itself to publish its packages, so we need to prebuild them
+      - name: Build packages
+        run: yarn build
+
+      - name: Debug 1
+        run: |
+          git tag --merged
