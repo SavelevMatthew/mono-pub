@@ -894,7 +894,6 @@ __metadata:
   resolution: "@mono-pub/git@workspace:packages/git"
   dependencies:
     "@mono-pub/configs": "workspace:^"
-    "@rushstack/eslint-patch": ^1.2.0
     eslint: ^9.16.0
     execa: ^5
     mono-pub: "workspace:^"
@@ -914,7 +913,6 @@ __metadata:
     "@mono-pub/git": "workspace:^"
     "@octokit/rest": ^19.0.7
     "@octokit/types": ^9.2.2
-    "@rushstack/eslint-patch": ^1.2.0
     "@types/lodash": ^4.14.194
     conventional-commits-parser: ^3.2.4
     eslint: ^9.16.0
@@ -932,7 +930,6 @@ __metadata:
   resolution: "@mono-pub/npm@workspace:packages/npm"
   dependencies:
     "@mono-pub/configs": "workspace:^"
-    "@rushstack/eslint-patch": ^1.2.0
     "@types/tmp": ^0.2.3
     eslint: ^9.16.0
     execa: ^5
@@ -1236,13 +1233,6 @@ __metadata:
   version: 1.1.0
   resolution: "@rtsao/scc@npm:1.1.0"
   checksum: 17d04adf404e04c1e61391ed97bca5117d4c2767a76ae3e879390d6dec7b317fcae68afbf9e98badee075d0b64fa60f287729c4942021b4d19cd01db77385c01
-  languageName: node
-  linkType: hard
-
-"@rushstack/eslint-patch@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "@rushstack/eslint-patch@npm:1.2.0"
-  checksum: faa749faae0e83c26ae9eb00ad36a897ac78f3cf27da8e8ff21c00bcf7973b598d823d8f2b3957ef66079288bcf577f94df831eae2d65f3f68d8ca32f18b6aff
   languageName: node
   linkType: hard
 
@@ -5051,7 +5041,6 @@ __metadata:
   dependencies:
     "@faker-js/faker": ^8.0.1
     "@mono-pub/configs": "workspace:^"
-    "@rushstack/eslint-patch": ^1.2.0
     "@types/lodash": ^4.14.194
     "@types/signale": ^1.4.4
     eslint: ^9.16.0
