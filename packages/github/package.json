@@ -29,7 +29,6 @@
   "devDependencies": {
     "@mono-pub/configs": "workspace:^",
     "@octokit/types": "^9.2.2",
-    "@rushstack/eslint-patch": "^1.2.0",
     "@types/lodash": "^4.14.194",
     "eslint": "^9.16.0",
     "mono-pub": "workspace:^",
