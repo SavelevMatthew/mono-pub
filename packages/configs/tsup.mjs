@@ -6,9 +6,13 @@ const ALLOWED_EXTENSIONS = ['.ts']
 
 function _getInputs(exports) {
     return Object.keys(exports).map((relativeImport) => {
+        // NOTE: path utils are expected and part of logic here
+        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
         const srcPath = path.join('src', relativeImport)
         const isDirectory = existsSync(srcPath) && lstatSync(srcPath).isDirectory()
 
+        // NOTE: path utils are expected and part of logic here
+        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
         const pathToFile = isDirectory ? path.join(srcPath, 'index') : srcPath
 
         const ext = ALLOWED_EXTENSIONS.find((extension) => existsSync(`${pathToFile}${extension}`))
