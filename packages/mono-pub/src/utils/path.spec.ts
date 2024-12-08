@@ -3,7 +3,7 @@ import { getAllPackages } from './path'
 
 const cwd = path.join(__dirname, '../../../..', 'test-examples', 'filtering')
 
-function expectContainingPackages(packages: Array<string>, scope?: string): void {
+function expectContainingPackages(packages: Array<string>, scope?: string) {
     return expect.arrayContaining(
         packages.map((pkg) => ({
             name: scope ? `@${scope}/${pkg}` : pkg,
