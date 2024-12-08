@@ -11,13 +11,7 @@ on:
 
 jobs:
   publish:
-
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
@@ -26,7 +20,6 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
           cache: 'yarn'
 
       - name: Install dependencies

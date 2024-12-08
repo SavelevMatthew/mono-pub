@@ -39,4 +39,4 @@ publish(
         builder,
         npm({ provenance: true }),
     ]
-)
+).then(() => console.log('ALL DONE!'))
