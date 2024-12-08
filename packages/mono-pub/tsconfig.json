@@ -4,7 +4,7 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "declarationDir": "dist/dts",
+    "declarationDir": "dist/types",
     "paths": {
       "@/*": [
         "./src/*"

@@ -3,7 +3,7 @@
     "display": "Base",
     "compilerOptions": {
         "target": "ES2022",
-        "module": "Node16",
+        "module": "NodeNext",
         "allowSyntheticDefaultImports": true,
         "declaration": true,
         "declarationMap": true,
@@ -12,7 +12,7 @@
         "inlineSources": false,
         "importHelpers": true,
         "isolatedModules": true,
-        "moduleResolution": "Bundler",
+        "moduleResolution": "NodeNext",
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "preserveWatchOutput": true,

@@ -25,7 +25,8 @@ export function createBuildPipeline(exports) {
         dts: true,
         sourcemap: true,
         format: ['cjs', 'esm'],
-        target: 'node',
+        target: 'node16',
         minify: true,
+        splitting: false,
     })
 }

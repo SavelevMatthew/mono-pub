@@ -5377,10 +5377,10 @@ __metadata:
     eslint: ^9.16.0
     glob: ^10.2.2
     lodash: ^4.17.21
-    rollup: ^3.29.5
     signale: ^1.4.0
     tmp: ^0.2.1
     tslib: ^2.5.0
+    tsup: ^8.3.5
     typescript: ^5.0.4
   languageName: unknown
   linkType: soft
