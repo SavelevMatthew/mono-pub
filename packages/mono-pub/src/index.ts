@@ -3,7 +3,7 @@ import isEqual from 'lodash/isEqual'
 import { getAllPackages } from '@/utils/path'
 import getLogger from '@/logger'
 import { CombinedPlugin } from '@/utils/plugins'
-import { getDependencies, getReleaseOrder, patchPackageDeps } from '@/utils/deps'
+import { getDependencies, getExecutionOrder, patchPackageDeps } from '@/utils/deps'
 import { getNewVersion, versionToString } from '@/utils/versions'
 
 import type {
@@ -66,11 +66,11 @@ export default async function publish(
     )
     logger.log('Calculating release order based on packages dependencies and devDependencies...')
     let packagesWithDeps: Record<string, PackageInfoWithDependencies> = {}
-    let releaseOrder: Array<string> = []
+    let releaseOrder: Array<BasePackageInfo> = []
 
     try {
         packagesWithDeps = await getDependencies(packages)
-        releaseOrder = getReleaseOrder(packagesWithDeps)
+        releaseOrder = getExecutionOrder(packagesWithDeps)
     } catch (err) {
         if (err instanceof Error) {
             logger.error(err.message)
@@ -78,7 +78,7 @@ export default async function publish(
         throw err
     }
 
-    logger.success(`Packages release order: [${releaseOrder.map((pkg) => `"${pkg}"`).join(', ')}]`)
+    logger.success(`Packages release order: [${releaseOrder.map((pkg) => `"${pkg.name}"`).join(', ')}]`)
 
     logger.success(
         `Found ${plugins.length} plugins to form release chain: [${plugins
@@ -107,7 +107,7 @@ export default async function publish(
     const releaseTypes: Record<string, ReleaseType> = {}
     const newVersions: Record<string, LatestReleasedVersion> = {}
 
-    for (const pkgName of releaseOrder) {
+    for (const { name: pkgName } of releaseOrder) {
         const scopedLogger = scopedContexts[pkgName].logger
 
         const latestRelease = get(latestReleases, pkgName, null)
@@ -152,7 +152,7 @@ export default async function publish(
 
     await releaseChain.prepare(packages, context)
 
-    for (const packageName of releaseOrder) {
+    for (const { name: packageName } of releaseOrder) {
         const newVersion = newVersions[packageName]
         const releaseType = releaseTypes[packageName]
         const oldVersion = latestReleases[packageName]
