@@ -12,7 +12,7 @@ const builder = {
     async prepareAll({ foundPackages }, ctx) {
         const batches = getExecutionOrder(foundPackages, { batching: true })
         for (const batch of batches) {
-            await execa('yarn', ['build', batch.map((pkg) => `--filter=${pkg.name}`)], { cwd: ctx.cwd })
+            await execa('yarn', ['build', ...batch.map((pkg) => `--filter=${pkg.name}`)], { cwd: ctx.cwd })
         }
     },
 }

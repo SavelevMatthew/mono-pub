@@ -193,6 +193,9 @@ describe('CombinedPlugin', () => {
             },
         }
     })
+    afterEach(() => {
+        tmpDir.removeCallback()
+    })
     describe('Setup', () => {
         it('Should setup all plugins in setup stage', async () => {
             const combined = new CombinedPlugin([chain.getter, chain.extractor, chain.analyzer])
