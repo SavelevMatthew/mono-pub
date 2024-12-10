@@ -4,11 +4,16 @@ const git = require('@mono-pub/git')
 const github = require('@mono-pub/github')
 const npm = require('@mono-pub/npm')
 const commitAnalyzer = require('@mono-pub/commit-analyzer')
+const { getExecutionOrder } = require('mono-pub/utils')
 
+/** @type {import('mono-pub').MonoPubPlugin} */
 const builder = {
     name: '@mono-pub/local-builder',
-    async prepare(_, ctx) {
-        await execa('yarn', ['build'], { cwd: ctx.cwd })
+    async prepareAll({ foundPackages }, ctx) {
+        const batches = getExecutionOrder(foundPackages, { batching: true })
+        for (const batch of batches) {
+            await execa('yarn', ['build', ...batch.map((pkg) => `--filter=${pkg.name}`)], { cwd: ctx.cwd })
+        }
     },
 }
 

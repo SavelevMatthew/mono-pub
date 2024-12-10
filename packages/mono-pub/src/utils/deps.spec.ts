@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { dirSync } from 'tmp'
 import { faker } from '@faker-js/faker'
-import { getDependencies, getReleaseOrder, patchPackageDeps } from './deps'
+import { getDependencies, getExecutionOrder, patchPackageDeps } from './deps'
 import { getNewVersion, versionToString } from './versions'
 
 import type { DirResult } from 'tmp'
@@ -28,6 +28,7 @@ describe('Dependencies utils', () => {
     let pkg1Info: BasePackageInfo
     let pkg2Info: BasePackageInfo
     let pkg3Info: BasePackageInfo
+    let pkg4Info: BasePackageInfo
     beforeEach(() => {
         tmpDir = dirSync({ unsafeCleanup: true })
         pkg1Info = {
@@ -43,7 +44,13 @@ describe('Dependencies utils', () => {
             location: path.join(tmpDir.name, 'packages/pkg3', 'package.json'),
         }
 
+        pkg4Info = {
+            name: '@scope/pkg4',
+            location: path.join(tmpDir.name, 'packages/pkg4', 'package.json'),
+        }
+
         writePackageJson({ name: pkg1Info.name, version: '0.0.0-development' }, 'packages/pkg1', tmpDir.name)
+        writePackageJson({ name: pkg4Info.name, version: '0.0.0-development' }, 'packages/pkg4', tmpDir.name)
         writePackageJson(
             {
                 name: pkg2Info.name,
@@ -78,11 +85,15 @@ describe('Dependencies utils', () => {
     })
     describe('getDependencies', () => {
         it('Should determine deps of packages correctly', async () => {
-            const deps = await getDependencies([pkg1Info, pkg2Info, pkg3Info])
+            const deps = await getDependencies([pkg1Info, pkg2Info, pkg3Info, pkg4Info])
             expect(deps).toEqual(
                 expect.objectContaining({
                     [pkg1Info.name]: {
                         ...pkg1Info,
+                        dependsOn: [],
+                    },
+                    [pkg4Info.name]: {
+                        ...pkg4Info,
                         dependsOn: [],
                     },
                     [pkg2Info.name]: {
@@ -99,6 +110,7 @@ describe('Dependencies utils', () => {
                 })
             )
             expect(deps[pkg1Info.name].dependsOn).toHaveLength(0)
+            expect(deps[pkg4Info.name].dependsOn).toHaveLength(0)
             expect(deps[pkg2Info.name].dependsOn).toHaveLength(1)
             expect(deps[pkg3Info.name].dependsOn).toHaveLength(2)
         })
@@ -118,19 +130,24 @@ describe('Dependencies utils', () => {
             )
         })
     })
-    describe('getReleaseOrder', () => {
+    describe('getExecutionOrder', () => {
         it('Should determine release order from leafs to root of deps tree', async () => {
             const deps = await getDependencies([pkg3Info, pkg2Info, pkg1Info])
-            const order = getReleaseOrder(deps)
-            expect(order).toEqual([pkg1Info.name, pkg2Info.name, pkg3Info.name])
+            const order = getExecutionOrder(Object.values(deps))
+            expect(order).toEqual([pkg1Info, pkg2Info, pkg3Info])
         })
         it('Should throw if cyclic deps found', async () => {
             const deps = await getDependencies([pkg3Info, pkg2Info, pkg1Info])
             deps[pkg1Info.name].dependsOn.push({ name: pkg3Info.name, value: '1.0.0', type: 'dep' })
 
             expect(() => {
-                getReleaseOrder(deps)
+                getExecutionOrder(Object.values(deps))
             }).toThrow('The release cannot be done because of cyclic dependencies')
+        })
+        it('Can batch tasks, which can be executed together', async () => {
+            const deps = await getDependencies([pkg3Info, pkg2Info, pkg1Info, pkg4Info])
+            const batches = getExecutionOrder(Object.values(deps), { batching: true })
+            expect(batches).toEqual([[pkg1Info, pkg4Info], [pkg2Info], [pkg3Info]])
         })
     })
     describe('patchPackageDeps', () => {

@@ -1,3 +1,5 @@
+import { getExecutionOrder } from '@/utils'
+
 import type {
     MonoPubPlugin,
     MonoPubContext,
@@ -7,6 +9,7 @@ import type {
     ReleaseType,
     CommitInfo,
     ReleasedPackageInfo,
+    PrepareAllInfo,
 } from '@/types'
 
 type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
@@ -14,7 +17,7 @@ type WithSetup = WithRequired<MonoPubPlugin, 'setup'>
 type WithGetLastRelease = WithRequired<MonoPubPlugin, 'getLastRelease'>
 type WithExtractor = WithRequired<MonoPubPlugin, 'extractCommits'>
 type WithAnalyzer = WithRequired<MonoPubPlugin, 'getReleaseType'>
-type WithPrepare = WithRequired<MonoPubPlugin, 'prepare'>
+type WithPrepare = WithRequired<MonoPubPlugin, 'prepareAll'> | WithRequired<MonoPubPlugin, 'prepareSingle'>
 type WithPublish = WithRequired<MonoPubPlugin, 'publish'>
 type WithPostPublish = WithRequired<MonoPubPlugin, 'postPublish'>
 
@@ -66,8 +69,17 @@ export class CombinedPlugin implements MonoPubPlugin {
                 this.analyzer = plugin as WithAnalyzer
             }
 
-            if (plugin.prepare) {
-                logger.log(this._getStepMessage('prepare', plugin))
+            if (plugin.prepareAll || plugin.prepareSingle) {
+                if (plugin.prepareAll && plugin.prepareSingle) {
+                    logger.warn(
+                        `Plugin "${plugin.name}" implements both "prepareAll" and "prepareSingle" methods, so only "prepareAll" be executed`
+                    )
+                } else if (plugin.prepareAll) {
+                    logger.info(this._getStepMessage('prepareAll', plugin))
+                } else {
+                    logger.info(this._getStepMessage('prepareSingle', plugin))
+                }
+
                 this.preparers.push(plugin as WithPrepare)
             }
 
@@ -139,10 +151,22 @@ export class CombinedPlugin implements MonoPubPlugin {
         return this.analyzer.getReleaseType(commits, isDepsChanged, ctx)
     }
 
-    async prepare(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Promise<void> {
+    async prepareAll(info: PrepareAllInfo, ctx: MonoPubContext): Promise<void> {
+        const executionOrder = getExecutionOrder(info.foundPackages)
+
         for (const plugin of this.preparers) {
-            ctx.logger.log(`Running "prepare" step of "${plugin.name}" plugin`)
-            await plugin.prepare(packages, ctx)
+            if (plugin.prepareAll) {
+                ctx.logger.log(`Running "prepareAll" step of "${plugin.name}" plugin`)
+                await plugin.prepareAll(info, ctx)
+            } else if (plugin.prepareSingle) {
+                for (const pkg of executionOrder) {
+                    const scopedLogger = ctx.logger.scope(pkg.name)
+                    const scopedContext = { ...ctx, logger: scopedLogger }
+
+                    scopedLogger.log(`Running "prepareSingle" step of "${plugin.name}" plugin`)
+                    await plugin.prepareSingle({ ...info, targetPackage: pkg }, scopedContext)
+                }
+            }
         }
     }
 

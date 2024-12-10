@@ -34,39 +34,57 @@ export async function getDependencies(
     return result
 }
 
-export function getReleaseOrder(packages: Record<string, PackageInfoWithDependencies>): Array<string> {
-    const order: Array<string> = []
+type ExecutionOrder<T extends boolean | undefined> = T extends true
+    ? Array<Array<BasePackageInfo>>
+    : Array<BasePackageInfo>
 
-    const deps = new Map<string, Array<string>>()
-    for (const pkg of Object.values(packages)) {
-        deps.set(
+type TaskPlanningOptions<T extends boolean | undefined> = {
+    batching?: T
+}
+
+export function getExecutionOrder<T extends boolean | undefined = undefined>(
+    packages: Array<PackageInfoWithDependencies>,
+    options?: TaskPlanningOptions<T>
+): ExecutionOrder<T> {
+    const batches: Array<Array<BasePackageInfo>> = []
+    const pkgMap = Object.fromEntries(packages.map((pkg) => [pkg.name, pkg]))
+
+    const dependencies = new Map<string, Array<string>>()
+    for (const pkg of packages) {
+        dependencies.set(
             pkg.name,
             pkg.dependsOn.map((dep) => dep.name)
         )
     }
 
-    while (deps.size > 0) {
-        const toRelease: Array<string> = []
-        for (const [key, value] of deps) {
-            if (value.length === 0) {
-                toRelease.push(key)
-                deps.delete(key)
+    while (dependencies.size > 0) {
+        const batch: Array<BasePackageInfo> = []
+        for (const [pkgName, pkgDeps] of dependencies) {
+            if (pkgDeps.length === 0) {
+                batch.push({ name: pkgName, location: pkgMap[pkgName].location })
+                dependencies.delete(pkgName)
             }
         }
-        if (toRelease.length === 0) {
+
+        if (batch.length === 0) {
             throw new Error('The release cannot be done because of cyclic dependencies')
-        } else {
-            order.push(...toRelease)
-            for (const [key, value] of deps) {
-                deps.set(
-                    key,
-                    value.filter((pkg) => !toRelease.includes(pkg))
-                )
-            }
+        }
+
+        batches.push(batch)
+        const includedPackages = batch.map((pkg) => pkg.name)
+        for (const [pkgName, pkgDeps] of dependencies) {
+            dependencies.set(
+                pkgName,
+                pkgDeps.filter((depName) => !includedPackages.includes(depName))
+            )
         }
     }
 
-    return order
+    if (options?.batching) {
+        return batches as ExecutionOrder<T>
+    }
+
+    return batches.flat() as ExecutionOrder<T>
 }
 
 export async function patchPackageDeps(
