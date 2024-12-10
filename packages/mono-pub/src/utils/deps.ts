@@ -43,13 +43,14 @@ type TaskPlanningOptions<T extends boolean | undefined> = {
 }
 
 export function getExecutionOrder<T extends boolean | undefined = undefined>(
-    packages: Record<string, PackageInfoWithDependencies>,
+    packages: Array<PackageInfoWithDependencies>,
     options?: TaskPlanningOptions<T>
 ): ExecutionOrder<T> {
     const batches: Array<Array<BasePackageInfo>> = []
+    const pkgMap = Object.fromEntries(packages.map((pkg) => [pkg.name, pkg]))
 
-    const dependencies = new Map<keyof typeof packages, Array<string>>()
-    for (const pkg of Object.values(packages)) {
+    const dependencies = new Map<string, Array<string>>()
+    for (const pkg of packages) {
         dependencies.set(
             pkg.name,
             pkg.dependsOn.map((dep) => dep.name)
@@ -60,7 +61,7 @@ export function getExecutionOrder<T extends boolean | undefined = undefined>(
         const batch: Array<BasePackageInfo> = []
         for (const [pkgName, pkgDeps] of dependencies) {
             if (pkgDeps.length === 0) {
-                batch.push({ name: pkgName, location: packages[pkgName].location })
+                batch.push({ name: pkgName, location: pkgMap[pkgName].location })
                 dependencies.delete(pkgName)
             }
         }

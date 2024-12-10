@@ -6,9 +6,21 @@ import type {
     PackageInfoWithLatestRelease,
     ReleaseType,
     ReleasedPackageInfo,
+    PackageInfoWithDependencies,
 } from './packages'
 
 type Awaitable<T> = T | Promise<T>
+
+export type PrepareAllInfo = {
+    /** All packages found by filter */
+    foundPackages: Array<PackageInfoWithDependencies>
+    /** Packages, which will actually be published */
+    changedPackages: Array<PackageInfoWithDependencies>
+}
+
+export type PrepareSingleInfo = PrepareAllInfo & {
+    package: BasePackageInfo
+}
 
 export interface MonoPubPlugin {
     /**
@@ -51,12 +63,29 @@ export interface MonoPubPlugin {
 
     /**
      * Prepares packages for publishing. Usually includes build process.
+     * Most suitable for scenarios in monorepos with existing orchestrator, such as TurboRepo,
+     * where multiple packages can be built at once.
      * NOTE: This step is triggered once for all packages, not for each package individually
-     * @param packages {Array<BasePackageInfo>} List of packages containing its name and location (absolute path to package.json)
+     * NOTE: You can get execution order with or without batches by using getExecutionOrder util from mono-pub/utils
+     * @param info {PrepareAllInfo} Information about all packages found, as well as packages that will be published immediately.
+     * List of packages containing its name and location (absolute path to package.json)
      * @param ctx {MonoPubContext} Execution context. Used to obtain cwd, env and logger
      * @return {void}
      */
-    prepare?(packages: Array<BasePackageInfo>, ctx: MonoPubContext): Awaitable<void>
+    prepareAll?(info: PrepareAllInfo, ctx: MonoPubContext): Awaitable<void>
+
+    /**
+     * Prepares individual package for publishing. Usually includes build process.
+     * Most suitable for scenarios in monorepos without, where you can just execute "yarn build" one by one.
+     * Order of execution is controlled for mono-pub, so you can ensure,
+     * that all package dependencies are built before package itself
+     * NOTE: This step is triggered once for all packages, not for each package individually
+     * @param info {PrepareSingleInfo} Information about all packages found, packages that will be directly published,
+     * and the current package being prepared
+     * @param ctx {MonoPubContext} Execution context. Used to obtain cwd, env and logger
+     * @return {void}
+     */
+    prepareSingle?(info: PrepareSingleInfo, ctx: MonoPubContext): Awaitable<void>
 
     /**
      * Publishes package to a specific registry

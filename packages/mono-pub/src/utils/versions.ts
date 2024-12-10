@@ -1,3 +1,4 @@
+import isEqual from 'lodash/isEqual'
 import type { LatestReleasedVersion, ReleaseType, PackageVersion } from '@/types'
 
 const PATCH_REGEX = /\d+.\d+.x/i
@@ -29,4 +30,12 @@ export function getVersionCriteria(currentVersion: string, newVersion: string) {
         return `^${newVersion}`
     }
     return newVersion
+}
+
+export function isPackageChanged(
+    newVersion: LatestReleasedVersion,
+    oldVersion: LatestReleasedVersion,
+    releaseType: ReleaseType
+): newVersion is NonNullable<PackageVersion> {
+    return !(releaseType === 'none' || !newVersion || isEqual(newVersion, oldVersion))
 }

@@ -133,7 +133,7 @@ describe('Dependencies utils', () => {
     describe('getExecutionOrder', () => {
         it('Should determine release order from leafs to root of deps tree', async () => {
             const deps = await getDependencies([pkg3Info, pkg2Info, pkg1Info])
-            const order = getExecutionOrder(deps)
+            const order = getExecutionOrder(Object.values(deps))
             expect(order).toEqual([pkg1Info, pkg2Info, pkg3Info])
         })
         it('Should throw if cyclic deps found', async () => {
@@ -141,12 +141,12 @@ describe('Dependencies utils', () => {
             deps[pkg1Info.name].dependsOn.push({ name: pkg3Info.name, value: '1.0.0', type: 'dep' })
 
             expect(() => {
-                getExecutionOrder(deps)
+                getExecutionOrder(Object.values(deps))
             }).toThrow('The release cannot be done because of cyclic dependencies')
         })
         it('Can batch tasks, which can be executed together', async () => {
             const deps = await getDependencies([pkg3Info, pkg2Info, pkg1Info, pkg4Info])
-            const batches = getExecutionOrder(deps, { batching: true })
+            const batches = getExecutionOrder(Object.values(deps), { batching: true })
             expect(batches).toEqual([[pkg1Info, pkg4Info], [pkg2Info], [pkg3Info]])
         })
     })

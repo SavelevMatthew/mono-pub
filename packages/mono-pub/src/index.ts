@@ -4,7 +4,7 @@ import { getAllPackages } from '@/utils/path'
 import getLogger from '@/logger'
 import { CombinedPlugin } from '@/utils/plugins'
 import { getDependencies, getExecutionOrder, patchPackageDeps } from '@/utils/deps'
-import { getNewVersion, versionToString } from '@/utils/versions'
+import { getNewVersion, versionToString, isPackageChanged } from '@/utils/versions'
 
 import type {
     MonoPubPlugin,
@@ -70,7 +70,7 @@ export default async function publish(
 
     try {
         packagesWithDeps = await getDependencies(packages)
-        releaseOrder = getExecutionOrder(packagesWithDeps)
+        releaseOrder = getExecutionOrder(Object.values(packagesWithDeps))
     } catch (err) {
         if (err instanceof Error) {
             logger.error(err.message)
@@ -150,13 +150,28 @@ export default async function publish(
         await patchPackageDeps(pkg, newVersions, latestReleases)
     }
 
-    await releaseChain.prepare(packages, context)
+    const foundPackages = Object.values(packagesWithDeps)
+    const changedPackages = foundPackages.filter(({ name }) => {
+        const newVersion = newVersions[name]
+        const releaseType = releaseTypes[name]
+        const oldVersion = latestReleases[name]
+
+        return isPackageChanged(newVersion, oldVersion, releaseType)
+    })
+
+    await releaseChain.prepareAll(
+        {
+            foundPackages,
+            changedPackages,
+        },
+        context
+    )
 
     for (const { name: packageName } of releaseOrder) {
         const newVersion = newVersions[packageName]
         const releaseType = releaseTypes[packageName]
         const oldVersion = latestReleases[packageName]
-        if (releaseType === 'none' || !newVersion || isEqual(newVersion, oldVersion)) {
+        if (!isPackageChanged(newVersion, oldVersion, releaseType)) {
             continue
         }
 
