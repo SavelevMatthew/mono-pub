@@ -67,15 +67,15 @@ The mono-pub plugins handle this out of the box (See [`@mono-pub/github`](https:
 We divide the publishing process into several steps, 
 allowing you to control most of the process yourself through pre-made plugins or using your own.
 
-| Step             | Description                                                                                                                                              |
-|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Setup            | Sets up the plugin, checks all the conditions necessary for work.                                                                                        |
-| Get Last Release | Obtains latest released version for each package (Usually from tags analysis)                                                                            |
-| Extract commits  | Extracts commits relevant to specific package that happened since last release                                                                           |
-| Get Release Type | Based on the received data and updated dependencies,  calculates the release type according to semantic versioning                                       |
-| Prepare          | Performs any action that prepares all packages for publication after all versions are patched  (You can build packages here, omit devDeps, you name it). |
-| Publish          | Publishes individual package to destination                                                                                                              |
-| Post-Publish     | Performs any actions on successful publishing  (You can generate new tag, publish release notes, send web hooks and every other side effect here)        |
+| Step             | Description                                                                                                                                                            |
+|------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Setup            | Sets up the plugin, checks all the conditions necessary for work.                                                                                                      |
+| Get Last Release | Obtains latest released version for each package (Usually from tags analysis)                                                                                          |
+| Extract commits  | Extracts commits relevant to specific package that happened since last release                                                                                         |
+| Get Release Type | Based on the received data and updated dependencies,  calculates the release type according to semantic versioning                                                     |
+| Prepare          | Performs any action that prepares all or individual packages for publication after all versions are patched  (You can build packages here, omit devDeps, you name it). |
+| Publish          | Publishes individual package to destination                                                                                                                            |
+| Post-Publish     | Performs any actions on successful publishing  (You can generate new tag, publish release notes, send web hooks and every other side effect here)                      |
 
 > All plugins must implement MonoPubPlugin interface, containing plugin name and implementation of one or more specified steps.
 > Detailed interface description can be found [here](https://github.com/SavelevMatthew/mono-pub/blob/main/packages/mono-pub/src/types/plugins.ts) 
@@ -114,10 +114,12 @@ const git = require('@mono-pub/git')
 const npm = require('@mono-pub/npm')
 const commitAnalyzer = require('@mono-pub/commit-analyzer')
 
+
+/** @type {import('mono-pub').MonoPubPlugin} */
 const builder = {
     name: '@mono-pub/local-builder',
-    async prepare(_, ctx) {
-        await execa('yarn', ['build'], { cwd: ctx.cwd })
+    async prepareSingle({ targetPackage }) {
+        await execa('yarn', ['build'], { cwd: targetPackage.location })
     },
 }
 
@@ -161,11 +163,16 @@ const git = require('@mono-pub/git')
 const github = require('@mono-pub/github')
 const npm = require('@mono-pub/npm')
 const commitAnalyzer = require('@mono-pub/commit-analyzer')
+const {} = require()
 
+/** @type {import('mono-pub').MonoPubPlugin} */
 const builder = {
-    name: '@mono-pub/local-builder',
-    async prepare(_, ctx) {
-        await execa('yarn', ['build'], { cwd: ctx.cwd })
+    name: '@mono-pub/local-turborepo-builder',
+    async prepareAll({ foundPackages }, ctx) {
+        const batches = getExecutionOrder(foundPackages, { batching: true })
+        for (const batch of batches) {
+            await execa('yarn', ['build', batch.map(pkg => `--filter=${pkg.name}`)], { cwd: ctx.cwd })
+        }
     },
 }
 

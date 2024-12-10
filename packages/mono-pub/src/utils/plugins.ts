@@ -164,7 +164,7 @@ export class CombinedPlugin implements MonoPubPlugin {
                     const scopedContext = { ...ctx, logger: scopedLogger }
 
                     scopedLogger.log(`Running "prepareSingle" step of "${plugin.name}" plugin`)
-                    await plugin.prepareSingle({ ...info, package: pkg }, scopedContext)
+                    await plugin.prepareSingle({ ...info, targetPackage: pkg }, scopedContext)
                 }
             }
         }

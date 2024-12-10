@@ -19,7 +19,7 @@ export type PrepareAllInfo = {
 }
 
 export type PrepareSingleInfo = PrepareAllInfo & {
-    package: BasePackageInfo
+    targetPackage: BasePackageInfo
 }
 
 export interface MonoPubPlugin {

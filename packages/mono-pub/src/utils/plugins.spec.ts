@@ -1,6 +1,11 @@
+import path from 'path'
+import fs from 'fs'
 import { faker } from '@faker-js/faker'
+import { dirSync } from 'tmp'
+import { getDependencies, getExecutionOrder } from '@/utils/deps'
 import getLogger from '../logger'
 import { CombinedPlugin } from './plugins'
+import type { DirResult } from 'tmp'
 import type {
     MonoPubPlugin,
     MonoPubContext,
@@ -10,7 +15,16 @@ import type {
     PackageInfoWithLatestRelease,
     ReleaseType,
     ReleasedPackageInfo,
+    PackageInfoWithDependencies,
+    PrepareAllInfo,
 } from '@/types'
+
+function writePackageJson(obj: Record<string, unknown>, packagePath: string, cwd: string) {
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    fs.mkdirSync(path.join(cwd, packagePath), { recursive: true })
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    fs.writeFileSync(path.join(cwd, packagePath, 'package.json'), JSON.stringify(obj, null, 2))
+}
 
 function getEventName(plugin: string, step: string, pkg?: string): string {
     return [plugin, step, pkg].filter(Boolean).join(':')
@@ -54,11 +68,20 @@ function getFakeAnalyzer(eventLog: Array<string>): MonoPubPlugin {
     }
 }
 
-function getFakePreparer(eventLog: Array<string>): MonoPubPlugin {
+function getFakePreparer(eventLog: Array<string>, single?: boolean): MonoPubPlugin {
+    if (single) {
+        return {
+            name: faker.string.uuid(),
+            async prepareSingle({ targetPackage }): Promise<void> {
+                eventLog.push(getEventName(this.name, 'prepareSingle', targetPackage.name))
+            },
+        }
+    }
+
     return {
         name: faker.string.uuid(),
-        async prepare(): Promise<void> {
-            eventLog.push(getEventName(this.name, 'prepare'))
+        async prepareAll(): Promise<void> {
+            eventLog.push(getEventName(this.name, 'prepareAll'))
         },
     }
 }
@@ -99,14 +122,63 @@ describe('CombinedPlugin', () => {
     let eventLog: Array<string> = []
     let ctx: MonoPubContext
     let chain: ReleaseChain
-    beforeEach(() => {
+
+    let tmpDir: DirResult
+    let packages: Array<PackageInfoWithDependencies>
+
+    beforeEach(async () => {
+        tmpDir = dirSync({ unsafeCleanup: true })
+        const pkg1Info = {
+            name: 'pkg1',
+            location: path.join(tmpDir.name, 'packages/pkg1', 'package.json'),
+        }
+        const pkg2Info = {
+            name: '@scope/pkg2',
+            location: path.join(tmpDir.name, 'packages/pkg2', 'package.json'),
+        }
+        const pkg3Info = {
+            name: '@scope/pkg3',
+            location: path.join(tmpDir.name, 'packages/pkg3', 'package.json'),
+        }
+        writePackageJson({ name: pkg1Info.name, version: '0.0.0-development' }, 'packages/pkg1', tmpDir.name)
+        writePackageJson(
+            {
+                name: pkg2Info.name,
+                version: '0.0.0-development',
+                dependencies: {
+                    execa: '^5',
+                    [pkg1Info.name]: 'workspace:^',
+                },
+            },
+            'packages/pkg2',
+            tmpDir.name
+        )
+        writePackageJson(
+            {
+                name: pkg3Info.name,
+                version: '0.0.0-development',
+                dependencies: {
+                    execa: '^5',
+                    [pkg1Info.name]: 'workspace:^',
+                },
+                devDependencies: {
+                    other: '1.0.0',
+                    [pkg2Info.name]: 'workspace:~',
+                },
+            },
+            'packages/pkg3',
+            tmpDir.name
+        )
+
+        packages = Object.values(await getDependencies([pkg3Info, pkg2Info, pkg1Info]))
+
         eventLog = []
         ctx = { cwd: process.cwd(), env: {}, logger: getLogger({ stdout: process.stdout, stderr: process.stderr }) }
         chain = {
             getter: getFakeVersionGetter(eventLog),
             extractor: getFakeExtractor(eventLog),
             analyzer: getFakeAnalyzer(eventLog),
-            preparers: [getFakePreparer(eventLog), getFakePreparer(eventLog)],
+            preparers: [getFakePreparer(eventLog), getFakePreparer(eventLog, true)],
             publishers: [getFakePublisher(eventLog), getFakePublisher(eventLog)],
             postPublishers: [getFakerPostPublisher(eventLog), getFakerPostPublisher(eventLog)],
             all() {
@@ -244,10 +316,25 @@ describe('CombinedPlugin', () => {
             const setupSuccess = await combined.setup(ctx)
             expect(setupSuccess).toBe(true)
             expect(combined.preparers).toEqual(chain.preparers)
-            await combined.prepare([], ctx)
+
+            const payload: PrepareAllInfo = {
+                foundPackages: packages,
+                changedPackages: packages,
+            }
+
+            await combined.prepareAll(payload, ctx)
+            // console.log(eventLog)
             const stepLog = eventLog.filter((event) => event.includes('prepare'))
-            expect(stepLog).toHaveLength(chain.preparers.length)
-            expect(stepLog).toEqual(combined.preparers.map((plugin) => getEventName(plugin.name, 'prepare')))
+            const expectedLogs = combined.preparers.map((plugin) => {
+                if (plugin.prepareAll) {
+                    return [getEventName(plugin.name, 'prepareAll')]
+                }
+
+                return getExecutionOrder(payload.foundPackages).map((pkg) =>
+                    getEventName(plugin.name, 'prepareSingle', pkg.name)
+                )
+            })
+            expect(stepLog).toEqual(expectedLogs.flat())
         })
         it('publish', async () => {
             const combined = new CombinedPlugin(chain.all())
