@@ -3,7 +3,13 @@ import get from 'lodash/get'
 import set from 'lodash/set'
 import { versionToString, getVersionCriteria } from '@/utils/versions'
 
-import type { BasePackageInfo, PackageInfoWithDependencies, DependencyInfo, LatestPackagesReleases } from '@/types'
+import type {
+    BasePackageInfo,
+    PackageInfoWithDependencies,
+    DependencyInfo,
+    LatestPackagesReleases,
+    IgnoringDependencies,
+} from '@/types'
 
 export async function getDependencies(
     packages: Array<BasePackageInfo>
@@ -40,6 +46,7 @@ type ExecutionOrder<T extends boolean | undefined> = T extends true
 
 type TaskPlanningOptions<T extends boolean | undefined> = {
     batching?: T
+    ignoreDependencies?: IgnoringDependencies
 }
 
 export function getExecutionOrder<T extends boolean | undefined = undefined>(
@@ -48,12 +55,15 @@ export function getExecutionOrder<T extends boolean | undefined = undefined>(
 ): ExecutionOrder<T> {
     const batches: Array<Array<BasePackageInfo>> = []
     const pkgMap = Object.fromEntries(packages.map((pkg) => [pkg.name, pkg]))
+    const ignoreDependencies = options?.ignoreDependencies || {}
 
     const dependencies = new Map<string, Array<string>>()
     for (const pkg of packages) {
+        const packageIgnoreList = ignoreDependencies[pkg.name] || []
+
         dependencies.set(
             pkg.name,
-            pkg.dependsOn.map((dep) => dep.name)
+            pkg.dependsOn.map((dep) => dep.name).filter((name) => !packageIgnoreList.includes(name))
         )
     }
 
