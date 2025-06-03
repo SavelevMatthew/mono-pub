@@ -6,7 +6,13 @@ import { getDependencies, getExecutionOrder, patchPackageDeps } from './deps'
 import { getNewVersion, versionToString } from './versions'
 
 import type { DirResult } from 'tmp'
-import type { BasePackageInfo, LatestPackagesReleases, PackageVersion } from '@/types'
+import type {
+    BasePackageInfo,
+    LatestPackagesReleases,
+    PackageVersion,
+    PackageInfoWithDependencies,
+    IgnoringDependencies,
+} from '@/types'
 
 function writePackageJson(obj: Record<string, unknown>, packagePath: string, cwd: string) {
     // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
@@ -148,6 +154,86 @@ describe('Dependencies utils', () => {
             const deps = await getDependencies([pkg3Info, pkg2Info, pkg1Info, pkg4Info])
             const batches = getExecutionOrder(Object.values(deps), { batching: true })
             expect(batches).toEqual([[pkg1Info, pkg4Info], [pkg2Info], [pkg3Info]])
+        })
+        describe('Should respect ignoreDependencies', () => {
+            const cycleLength = 6
+            let packages: Array<PackageInfoWithDependencies> = []
+            beforeEach(() => {
+                packages = Array.from({ length: cycleLength }, (_, i) => {
+                    const packageName = `package${i}`
+                    const prevPackageName = `package${(i - 1 + cycleLength) % cycleLength}`
+
+                    return {
+                        name: packageName,
+                        location: path.join(tmpDir.name, 'packages', packageName, 'package.json'),
+                        dependsOn: [
+                            {
+                                name: prevPackageName,
+                                type: Math.random() > 0.5 ? 'dep' : 'devDep',
+                                value: versionToString(getRandomVersion()),
+                            },
+                        ],
+                    }
+                })
+            })
+
+            it('Simple cyclic graph test', () => {
+                expect(() => {
+                    getExecutionOrder(packages)
+                }).toThrow('The release cannot be done because of cyclic dependencies')
+
+                for (let i = 0; i < cycleLength; i++) {
+                    const ignoreDependencies = {
+                        [packages[i].name]: [packages[(i - 1 + cycleLength) % cycleLength].name],
+                    }
+
+                    const expectedNonBatchedOrder = Array.from(
+                        { length: cycleLength },
+                        (_, idx) => packages[(i + idx) % cycleLength].name
+                    )
+
+                    const nonBatchedOrder = getExecutionOrder(packages, {
+                        ignoreDependencies,
+                    }).map((pkg) => pkg.name)
+
+                    expect(nonBatchedOrder).toEqual(expectedNonBatchedOrder)
+
+                    const expectedBatchedOrder = expectedNonBatchedOrder.map((name) => [name])
+                    const batchedOrder = getExecutionOrder(packages, {
+                        ignoreDependencies,
+                        batching: true,
+                    }).map((batch) => batch.map((pkg) => pkg.name))
+
+                    expect(batchedOrder).toEqual(expectedBatchedOrder)
+                }
+            })
+            it('Advanced test', () => {
+                const ignoreDependencies: IgnoringDependencies = {}
+                const firstBatchExpected: Array<string> = []
+                const secondBatchExpected: Array<string> = []
+
+                for (let i = 0; i < cycleLength; i++) {
+                    const packageName = packages[i].name
+
+                    if (i % 2 === 0) {
+                        const prevPackageName = packages[(i + cycleLength - 1) % cycleLength].name
+                        ignoreDependencies[packageName] = [prevPackageName]
+                        firstBatchExpected.push(packageName)
+                    } else {
+                        secondBatchExpected.push(packageName)
+                    }
+                }
+
+                const batchedOrder = getExecutionOrder(packages, {
+                    ignoreDependencies,
+                    batching: true,
+                }).map((batch) => batch.map((pkg) => pkg.name))
+
+                expect(batchedOrder).toEqual([
+                    expect.objectContaining(firstBatchExpected),
+                    expect.objectContaining(secondBatchExpected),
+                ])
+            })
         })
     })
     describe('patchPackageDeps', () => {

@@ -32,11 +32,12 @@ export default async function publish(
     plugins: Array<MonoPubPlugin>,
     options: MonoPubOptions = {}
 ) {
-    const { stdout = process.stdout, stderr = process.stderr, ...restOptions } = options
+    const { stdout = process.stdout, stderr = process.stderr, ignoreDependencies, ...restOptions } = options
     const logger = getLogger({ stdout, stderr })
     const context: MonoPubContext = {
         cwd: process.cwd(),
         env: process.env,
+        ignoreDependencies: ignoreDependencies || {},
         ...restOptions,
         logger,
     }
