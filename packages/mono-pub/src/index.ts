@@ -71,7 +71,7 @@ export default async function publish(
 
     try {
         packagesWithDeps = await getDependencies(packages)
-        releaseOrder = getExecutionOrder(Object.values(packagesWithDeps))
+        releaseOrder = getExecutionOrder(Object.values(packagesWithDeps), { ignoreDependencies })
     } catch (err) {
         if (err instanceof Error) {
             logger.error(err.message)
