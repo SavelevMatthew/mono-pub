@@ -165,6 +165,7 @@ describe('Dependencies utils', () => {
 
                     return {
                         name: packageName,
+                        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                         location: path.join(tmpDir.name, 'packages', packageName, 'package.json'),
                         dependsOn: [
                             {

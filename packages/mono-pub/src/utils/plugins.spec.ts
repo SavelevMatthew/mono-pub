@@ -173,7 +173,12 @@ describe('CombinedPlugin', () => {
         packages = Object.values(await getDependencies([pkg3Info, pkg2Info, pkg1Info]))
 
         eventLog = []
-        ctx = { cwd: process.cwd(), env: {}, logger: getLogger({ stdout: process.stdout, stderr: process.stderr }) }
+        ctx = {
+            cwd: process.cwd(),
+            env: {},
+            logger: getLogger({ stdout: process.stdout, stderr: process.stderr }),
+            ignoreDependencies: {},
+        }
         chain = {
             getter: getFakeVersionGetter(eventLog),
             extractor: getFakeExtractor(eventLog),
