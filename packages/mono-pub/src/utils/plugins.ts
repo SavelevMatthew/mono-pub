@@ -152,7 +152,9 @@ export class CombinedPlugin implements MonoPubPlugin {
     }
 
     async prepareAll(info: PrepareAllInfo, ctx: MonoPubContext): Promise<void> {
-        const executionOrder = getExecutionOrder(info.foundPackages)
+        const executionOrder = getExecutionOrder(info.foundPackages, {
+            ignoreDependencies: ctx.ignoreDependencies,
+        })
 
         for (const plugin of this.preparers) {
             if (plugin.prepareAll) {
