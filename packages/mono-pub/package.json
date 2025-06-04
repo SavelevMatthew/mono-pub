@@ -66,7 +66,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "glob": "^10.2.2",
+    "globby": "^11.1.0",
     "lodash": "^4.17.21",
     "signale": "^1.4.0"
   },

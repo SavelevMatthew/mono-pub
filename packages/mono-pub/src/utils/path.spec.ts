@@ -36,6 +36,11 @@ describe('getAllPackages', () => {
         expect(packages).toHaveLength(3)
         expect(packages).toEqual(expectContainingPackages(['pkg1', 'pkg3', 'lib1'], 'filtering'))
     })
+    it('Should work with negative globs', async () => {
+        const packages = await getAllPackages(['packages/*', '!packages/pkg3'], cwd)
+        expect(packages).toHaveLength(1)
+        expect(packages).toEqual(expectContainingPackages(['pkg1'], 'filtering'))
+    })
     it('Should work with relative and absolute paths to package.json', async () => {
         const packages = await getAllPackages(
             ['packages/pkg1/package.json', path.join(cwd, 'libs/lib1/package.json')],
