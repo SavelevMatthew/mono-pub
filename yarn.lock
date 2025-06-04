@@ -3766,7 +3766,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globby@npm:^11":
+"globby@npm:^11.1.0":
   version: 11.1.0
   resolution: "globby@npm:11.1.0"
   dependencies:
@@ -5451,7 +5451,7 @@ __metadata:
     "@types/signale": ^1.4.4
     eslint: ^9.16.0
     fix-tsup-cjs: ^1.2.0
-    globby: ^11
+    globby: ^11.1.0
     lodash: ^4.17.21
     signale: ^1.4.0
     tmp: ^0.2.1
