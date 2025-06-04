@@ -1,6 +1,6 @@
 import path from 'path'
 import fs, { promises as fsPromises } from 'fs'
-import { glob } from 'glob'
+import globby from 'globby'
 import uniq from 'lodash/uniq'
 import get from 'lodash/get'
 import type { BasePackageInfo } from '@/types'
@@ -21,14 +21,20 @@ async function _scanPackage(filePath: string): Promise<PackageScanInfo> {
 }
 
 export async function getAllPackages(paths: Array<string>, cwd: string): Promise<Array<BasePackageInfo>> {
-    const matches = await glob(paths, { cwd, stat: true, withFileTypes: true })
+    const matches = await globby(paths, {
+        cwd,
+        expandDirectories: false,
+        onlyFiles: false,
+        absolute: true,
+        objectMode: true,
+    })
 
     const fileNames: Array<string> = []
     for (const match of matches) {
-        if (match.isFile() && match.name === 'package.json') {
-            fileNames.push(match.fullpath())
-        } else if (match.isDirectory()) {
-            const fullPath = match.fullpath()
+        if (match.dirent.isFile() && path.basename(match.name) === 'package.json') {
+            fileNames.push(match.path)
+        } else if (match.dirent.isDirectory()) {
+            const fullPath = match.path
             // NOTE: Repo traversal is a part of package logic
             // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
             const pkgPath = path.join(fullPath, 'package.json')
