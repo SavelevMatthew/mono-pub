@@ -43,14 +43,14 @@
     }
   },
   "peerDependencies": {
-    "mono-pub": "1.x"
+    "mono-pub": "^1.0.0 || ^2.0.0"
   },
   "devDependencies": {
     "@mono-pub/configs": "workspace:^",
     "eslint": "^9.16.0",
     "fix-tsup-cjs": "^1.2.0",
     "mono-pub": "workspace:^",
-    "tmp": "^0.2.1",
+    "tmp": "^0.2.5",
     "tsup": "8.3.5",
     "typescript": "^5.0.4"
   },

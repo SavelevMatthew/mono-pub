@@ -56,18 +56,18 @@
   "devDependencies": {
     "@faker-js/faker": "^8.0.1",
     "@mono-pub/configs": "workspace:^",
-    "@types/lodash": "^4.14.194",
+    "@types/lodash": "^4.17.24",
     "@types/signale": "^1.4.4",
     "eslint": "^9.16.0",
     "fix-tsup-cjs": "^1.2.0",
-    "tmp": "^0.2.1",
+    "tmp": "^0.2.5",
     "tslib": "^2.5.0",
     "tsup": "8.3.5",
     "typescript": "^5.0.4"
   },
   "dependencies": {
     "globby": "^11.1.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "signale": "^1.4.0"
   },
   "publishConfig": {

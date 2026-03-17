@@ -59,7 +59,7 @@ export async function extractPrCommits(
             page: pagesFetched + 1,
         })
         if (response.status !== 200) {
-            throw new Error(`Could not fetch PR commits. Details: ${response.data}`)
+            throw new Error(`Could not fetch PR commits. Details: ${JSON.stringify(response.data)}`)
         }
         const data = get(response, 'data', [])
         pagesFetched++
@@ -76,7 +76,7 @@ export async function extractPrCommits(
                 ref: sha,
             })
             if (response.status !== 200) {
-                throw new Error(`Could not fetch commit info. Details: ${response.data}`)
+                throw new Error(`Could not fetch commit info. Details: ${JSON.stringify(response.data)}`)
             }
             const packageFilesAffected = (commitResponse.data.files ?? [])
                 .map((file) => file.filename)

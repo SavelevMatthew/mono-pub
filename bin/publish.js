@@ -31,6 +31,7 @@ publish(
                     { type: 'feat', section: '🦕 New features' },
                     { type: 'fix', section: '🐞 Bug fixes' },
                     { type: 'perf', section: '🚀 Performance increases' },
+                    { type: 'deps', section: '🌐Dependencies' },
                     { dependency: true, section: '🌐Dependencies' },
                 ],
                 breakingNoteKeywords: BREAKING_KEYWORDS,
@@ -42,6 +43,6 @@ publish(
             breakingNoteKeywords: BREAKING_KEYWORDS,
         }),
         builder,
-        npm({ provenance: true }),
+        npm({ provenance: true, trustedPublishing: true }),
     ]
 ).then(() => console.log('ALL DONE!'))

@@ -28,11 +28,11 @@
     }
   },
   "peerDependencies": {
-    "mono-pub": "1.x"
+    "mono-pub": "^1.0.0 || ^2.0.0"
   },
   "devDependencies": {
     "@mono-pub/configs": "workspace:^",
-    "@types/tmp": "^0.2.3",
+    "@types/tmp": "^0.2.6",
     "eslint": "^9.16.0",
     "fix-tsup-cjs": "^1.2.0",
     "mono-pub": "workspace:^",
@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "execa": "^5",
-    "tmp": "^0.2.1"
+    "tmp": "^0.2.5"
   },
   "publishConfig": {
     "access": "public"

@@ -11,6 +11,7 @@ interface MonoPubNpmConfig {
     distTag: string
     dryRun: boolean
     provenance: boolean
+    trustedPublishing: boolean
 }
 
 const DEFAULT_NPM_REGISTRY = 'https://registry.npmjs.org'
@@ -20,6 +21,7 @@ const DEFAULT_NPM_CONFIG: MonoPubNpmConfig = {
     distTag: 'latest',
     dryRun: false,
     provenance: false,
+    trustedPublishing: false,
 }
 
 class MonoPubNpm implements MonoPubPlugin {
@@ -36,12 +38,16 @@ class MonoPubNpm implements MonoPubPlugin {
 
     async setup(ctx: MonoPubContext): Promise<boolean> {
         const npmToken = ctx.env[this.config.envTokenKey]
-        if (!npmToken) {
+        if (!npmToken && !this.config.trustedPublishing) {
             ctx.logger.error(
                 `No npm token found in mono-pub environment (key: "${this.config.envTokenKey}"). ` +
                     `Make sure you specified it in env and provided "envTokenKey" in plugin config in case it is stored not under "${DEFAULT_NPM_CONFIG.envTokenKey}" key`
             )
             return false
+        }
+
+        if (!npmToken || this.config.trustedPublishing) {
+            return true
         }
 
         const url = new URL(DEFAULT_NPM_REGISTRY)
@@ -67,7 +73,13 @@ class MonoPubNpm implements MonoPubPlugin {
     async publish(packageInfo: BasePackageInfo, ctx: MonoPubContext): Promise<void> {
         const npmToken = ctx.env[this.config.envTokenKey]
         const runDir = path.dirname(packageInfo.location)
-        const args = ['publish', '--tag', this.config.distTag, '--userconfig', this.npmConfigFile, '--no-workspaces']
+        const args = ['publish', '--tag', this.config.distTag, '--no-workspaces']
+        const env = this.config.trustedPublishing ? {} : { NPM_TOKEN: npmToken }
+
+        if (fs.existsSync(this.npmConfigFile)) {
+            args.push('--userconfig', this.npmConfigFile)
+        }
+
         if (this.config.dryRun) {
             args.push('--dry-run')
         }
@@ -75,7 +87,7 @@ class MonoPubNpm implements MonoPubPlugin {
             args.push('--provenance')
         }
 
-        await execa('npm', args, { cwd: runDir, env: { NPM_TOKEN: npmToken } })
+        await execa('npm', args, { cwd: runDir, env })
     }
 }
 
