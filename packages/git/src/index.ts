@@ -23,7 +23,7 @@ import type {
 
 class MonoPubGit implements MonoPubPlugin {
     name = name
-    readonly tagFormat = DEFAULT_TAG_FORMAT
+    readonly tagFormat: string = DEFAULT_TAG_FORMAT
 
     constructor(tagFormat?: string) {
         if (tagFormat) {
