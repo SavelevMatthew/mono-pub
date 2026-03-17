@@ -1045,7 +1045,7 @@ __metadata:
     tsup: 8.3.5
     typescript: ^5.7.2
   peerDependencies:
-    mono-pub: 1.x
+    mono-pub: ^1.0.0 || ^2.0.0
   languageName: unknown
   linkType: soft
 
@@ -1080,7 +1080,7 @@ __metadata:
     tsup: 8.3.5
     typescript: ^5.0.4
   peerDependencies:
-    mono-pub: 1.x
+    mono-pub: ^1.0.0 || ^2.0.0
   languageName: unknown
   linkType: soft
 
@@ -1101,7 +1101,7 @@ __metadata:
     tsup: 8.3.5
     typescript: ^5.0.4
   peerDependencies:
-    mono-pub: 1.x
+    mono-pub: ^1.0.0 || ^2.0.0
   languageName: unknown
   linkType: soft
 
@@ -1119,7 +1119,7 @@ __metadata:
     tsup: 8.3.5
     typescript: ^5.0.4
   peerDependencies:
-    mono-pub: 1.x
+    mono-pub: ^1.0.0 || ^2.0.0
   languageName: unknown
   linkType: soft
 
