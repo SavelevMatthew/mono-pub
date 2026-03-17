@@ -43,6 +43,6 @@ publish(
             breakingNoteKeywords: BREAKING_KEYWORDS,
         }),
         builder,
-        npm({ provenance: true }),
+        npm({ provenance: true, trustedPublishing: true }),
     ]
 ).then(() => console.log('ALL DONE!'))

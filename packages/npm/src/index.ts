@@ -46,7 +46,7 @@ class MonoPubNpm implements MonoPubPlugin {
             return false
         }
 
-        if (!npmToken) {
+        if (!npmToken || this.config.trustedPublishing) {
             return true
         }
 
@@ -74,6 +74,7 @@ class MonoPubNpm implements MonoPubPlugin {
         const npmToken = ctx.env[this.config.envTokenKey]
         const runDir = path.dirname(packageInfo.location)
         const args = ['publish', '--tag', this.config.distTag, '--no-workspaces']
+        const env = this.config.trustedPublishing ? {} : { NPM_TOKEN: npmToken }
 
         if (fs.existsSync(this.npmConfigFile)) {
             args.push('--userconfig', this.npmConfigFile)
@@ -86,7 +87,7 @@ class MonoPubNpm implements MonoPubPlugin {
             args.push('--provenance')
         }
 
-        await execa('npm', args, { cwd: runDir, env: { NPM_TOKEN: npmToken } })
+        await execa('npm', args, { cwd: runDir, env })
     }
 }
 
